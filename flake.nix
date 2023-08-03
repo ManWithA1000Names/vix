@@ -3,10 +3,13 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
   outputs = { self, nixpkgs, flake-utils }: {
+    languages = {
+      nix = import ./languages/nix.nix;
+    };
 
     mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
       let
@@ -45,7 +48,7 @@
       ''
     ;
 
-    packages.x86_64-linux.vix = self.mkDerivation { system = "x86_64-linux"; };
+    packages.x86_64-linux.vix = self.mkDerivation { system = "x86_64-linux"; languages = [ self.languages.nix ]; };
 
     packages.x86_64-linux.default = self.packages.x86_64-linux.vix;
 
