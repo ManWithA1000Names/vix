@@ -15,40 +15,44 @@ let
   '';
 
   setFile = pkgs.writeText "set.lua" ''
-    ${liblua.toValidLuaInsert (pkgs.lib.attrsets.atrrByPath ["lua"] "" set)}
-    ${liblua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.opt.${name} = ${liblua.toLua value};") "" (builtins.removeAttrs set ["lua"]))}
+    ${lua.toValidLuaInsert (pkgs.lib.attrsets.attrByPath ["lua"] "" set)}
+    ${lua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.opt.${name} = ${lua.toLua value};") "" (builtins.removeAttrs set ["lua"]))}
   '';
 
   globalsFile = pkgs.writeText "globals.lua" ''
-    ${liblua.toValidLuaInsert (if builtins.hasAttr "lua" globals then globals.lua else "")}
-    ${liblua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.g.${name} = ${liblua.toLua value};") "" (builtins.removeAttrs globals ["lua"]))}
+    ${lua.toValidLuaInsert (if builtins.hasAttr "lua" globals then globals.lua else "")}
+    ${lua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.g.${name} = ${lua.toLua value};") "" (builtins.removeAttrs globals ["lua"]))}
   '';
 
   keybindindsFile = pkgs.writeText "${name}-generated-keybindinds.lua" ''
+    local ok, whichkey = pcall(require,"which-key");
+    if not ok then
+      print([[Failed to require 'whichkey' which is needed to setup keybindinds!]], whichkey);
+      return;
+    end
     --{{ injected lua code
-    ${liblua.toValidLuaInsert (pkgs.lib.attrsets.atrrByPath ["lua"] "" keybinds)}
+    ${lua.toValidLuaInsert (pkgs.lib.attrsets.attrByPath ["lua"] "" keybinds)}
     --}}
 
     -- KEYBINDINDS
-    local whichkey = require("which-key");
     --{{ normal mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "normal" keybinds) ''whichkey.register(${liblua.toLua keybinds.normal}, {mode = "n"});''}
+    ${pkgs.lib.strings.optionalString (builtins.hasAttr "normal" keybinds) ''whichkey.register(${lua.toLua keybinds.normal}, {mode = "n"});''}
     --}}
 
     --{{ insert mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "insert" keybinds) ''whichkey.register(${liblua.toLua keybinds.insert}, {mode = "i"});''}
+    ${pkgs.lib.strings.optionalString (builtins.hasAttr "insert" keybinds) ''whichkey.register(${lua.toLua keybinds.insert}, {mode = "i"});''}
     --}}
 
     --{{ visual/select mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "visual" keybinds) ''whichkey.register(${liblua.toLua keybinds.visual}, {mode = "v"});''}
+    ${pkgs.lib.strings.optionalString (builtins.hasAttr "visual" keybinds) ''whichkey.register(${lua.toLua keybinds.visual}, {mode = "v"});''}
     --}}
 
     --{{ command mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "command" keybinds) ''whichkey.register(${liblua.toLua keybinds.command}, {mode = "c"});''}
+    ${pkgs.lib.strings.optionalString (builtins.hasAttr "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
     --}}
 
     --{{ terminal mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "terminal" keybinds) ''whichkey.register(${liblua.toLua keybinds.terminal}, {mode = "t"});''}
+    ${pkgs.lib.strings.optionalString (builtins.hasAttr "terminal" keybinds) ''whichkey.register(${lua.toLua keybinds.terminal}, {mode = "t"});''}
     --}}
   '';
 in

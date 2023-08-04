@@ -19,7 +19,7 @@
     else if pkgs.lib.isAttrs arg then
       "{" + (pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc + "${toLuaTableKey name} = ${toLua value},") "" arg) + "}"
     else if pkgs.lib.isFunction arg then
-      arg null
+      let value = arg null; in assert pkgs.lib.isString value; value
     else "";
 
   toValidLuaInsert = str: if pkgs.lib.strings.hasSuffix ";" str || pkgs.lib.strings.hasSuffix "\n" str || str == "" then str else str + ";";
