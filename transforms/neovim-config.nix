@@ -8,7 +8,7 @@
 }:
 let
   initFile = pkgs.writeText "init.lua" ''
-    ${pkgs.lib.strings.optionalString enable_vim_loader "vim.loader.enable()"}
+    ${if enable_vim_loader then "vim.loader.enable()" else "vim.loader.disable()"}
     ${lua.toValidLuaInsert init}
     ${pkgs.lib.strings.optionalString colorscheme != "" "vim.cmd([[colorscheme ${colorscheme}]])"}
     require("${name}-generated-config.globals")
