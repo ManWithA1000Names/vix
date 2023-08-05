@@ -24,20 +24,19 @@
 
   toValidLuaInsert = str: if pkgs.lib.strings.hasSuffix ";" str || pkgs.lib.strings.hasSuffix "\n" str || str == "" then str else str + ";";
 
-  defaultPluginConfig = { name, config ? { }, setupFN ? "setup" }:
-    let args = toLua config; in
-    ''
-      local ok, plugin = pcall(require,"${name}");
+  defaultPluginConfig = { name, config ? { }, setupFN ? "setup" }: ''
+    local ok, plugin = pcall(require,"${name}");
+    if not ok then
+      print([[Operation failed: require("${name}"). Are you sure the name of plugin is correct?]]);
+    end
+    if plugin.${setupFN} ~= nil then
+      local arg = ${toLua config};
+      local ok = pcall(plugin.${setupFN}, args)
       if not ok then
-        print([[Operation failed: require("${name}"). Are you sure the name of plugin is correct?]]);
+        print([[Failed to setup plugin '${name}'. Error returned when calling 'plugin.${setupFN}(]] .. vim.inspect(arg) .. [[)']])
       end
-      if plugin.${setupFN} ~= nil then
-        local ok = pcall(plugin.${setupFN}, ${args})
-        if not ok then
-          print([[Failed to setup plugin '${name}'. Error returned when calling 'plugin.${setupFN}(${args})']])
-        end
-      else
-        print([[Failed to setup plugin '${name}', the provided setupFN: '${setupFN}', does not exists on 'require("${name}")'.]])
-      end
-    '';
+    else
+      print([[Failed to setup plugin '${name}', the provided setupFN: '${setupFN}', does not exists on 'require("${name}")'.]])
+    end
+  '';
 }
