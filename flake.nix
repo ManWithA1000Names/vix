@@ -6,7 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs, flake-utils }: {
     languages = {
       nix = import ./languages/nix.nix;
     };
@@ -51,8 +51,7 @@
            exit 0;
          fi
          exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${name}/init.lua "$@";
-      ''
-    ;
+      '';
 
   };
 }
