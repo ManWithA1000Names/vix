@@ -14,7 +14,7 @@
     mkFlake = { name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation { inherit system name config plugins languages; }; in
-        { ${name} = theDerivation; default = theDerivation; }
+        { packages = { ${name} = theDerivation; default = theDerivation; }; }
       );
 
     mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
