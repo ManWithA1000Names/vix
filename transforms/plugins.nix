@@ -3,7 +3,7 @@
 let
   compile_plugin_source = { src, dir ? "start" }: "cp -R ${src} $out/${name}/pack/${name}-plugins/${dir}/;";
 
-  compile_plugin_config = app_name: { name ? "", src, configure ? true, urgent ? false, opt ? false, setupFN ? "setup", config ? (lua.defaultPluginConfig { inherit name setupFN; config = { }; }) }:
+  compile_plugin_config = app_name: { name , src, configure ? true, urgent ? false, opt ? false, setupFN ? "setup", config ? (lua.defaultPluginConfig { inherit name setupFN; config = { }; }) }:
     if !configure then compile_plugin_source { inherit src; dir = if opt then "opt" else "start"; }
     else
     let
