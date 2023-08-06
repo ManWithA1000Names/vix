@@ -7,7 +7,7 @@ let
     if !configure then compile_plugin_source { inherit src; dir = if opt then "opt" else "start"; }
     else
     let
-      config_file = pkgs.writeText "${name}-config" (if builtins.isAttrs config then lua.defaultPluginConfig { inherit name setupFN config; } else config);
+      config_file = pkgs.writeText "${name}.lua" (if builtins.isAttrs config then lua.defaultPluginConfig { inherit name setupFN config; } else config);
     in
     ''
       cp ${config_file} $out/${app_name}/${if urgent then "plugin" else "after/plugin"}/;
