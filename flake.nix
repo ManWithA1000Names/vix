@@ -41,7 +41,7 @@
       in
       pkgs.writeScriptBin name ''
         #!/bin/sh
-         export XDG_CONFIG_HOME="${complete_config}";
+         # export XDG_CONFIG_HOME="${complete_config}";
          export NVIM_APPNAME="${name}";
          if [ "$1" = "remove-files" ]; then
            rm -rf ~/.local/share/${name}/;
