@@ -50,7 +50,7 @@
            echo 'removed all associated files'
            exit 0;
          fi
-         exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${name}/init.lua "$@";
+         exec ${pkgs.neovim}/bin/nvim --cmd 'lua vim.opt.rtp:prepend("${complete_config}/${name}")' -u ${complete_config}/${name}/init.lua "$@";
       '';
 
   };
