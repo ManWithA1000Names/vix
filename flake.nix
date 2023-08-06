@@ -41,7 +41,8 @@
       in
       pkgs.writeScriptBin name ''
         #!/bin/sh
-         # export XDG_CONFIG_HOME="${complete_config}";
+         export OG_XDG_CONFIG_HOME=XDG_CONFIG_HOME;
+         export XDG_CONFIG_HOME="${complete_config}";
          export NVIM_APPNAME="${name}";
          if [ "$1" = "remove-files" ]; then
            rm -rf ~/.local/share/${name}/;
@@ -50,7 +51,7 @@
            echo 'removed all associated files'
            exit 0;
          fi
-         exec ${pkgs.neovim}/bin/nvim --cmd 'lua vim.opt.rtp:prepend("${complete_config}/${name}")' -u ${complete_config}/${name}/init.lua "$@";
+         exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${name}/init.lua "$@";
       '';
 
   };
