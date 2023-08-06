@@ -6,7 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, flake-utils, null-ls, lspconfig, plenary, which-key }: {
+  outputs = { self, nixpkgs, flake-utils }: {
     languages = {
       nix = import ./languages/nix.nix;
     };
@@ -14,7 +14,7 @@
     mkFlake = { name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation { inherit system name config plugins languages; }; in
-        { ${name} = theDerivation; default = theDerivation; }
+        { packages = { ${name} = theDerivation; default = theDerivation; }; }
       );
 
     mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
@@ -51,17 +51,7 @@
            exit 0;
          fi
          exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${name}/init.lua "$@";
-      ''
-    ;
-
-    packages.x86_64-linux.vix = self.mkDerivation {
-      system = "x86_64-linux";
-      languages = [ self.languages.nix ];
-      config = import ./nconfig.nix;
-      plugins = [ null-ls lspconfig plenary which-key ];
-    };
-
-    packages.x86_64-linux.default = self.packages.x86_64-linux.vix;
+      '';
 
   };
 }
