@@ -1,4 +1,4 @@
-{ pkgs, name, lua }:
+{ pkgs, name, lua, nilm }:
 { init ? ""
 , set ? { }
 , globals ? { }
@@ -7,22 +7,24 @@
 , enable_vim_loader ? true
 }:
 let
+  inherit (nilm) Dict;
+
   initFile = pkgs.writeText "init.lua" ''
     ${if enable_vim_loader then "vim.loader.enable()" else "vim.loader.disable()"}
     ${lua.toValidLuaInsert init}
-    ${pkgs.lib.strings.optionalString (colorscheme != "") "vim.cmd([[colorscheme ${colorscheme}]])"}
+    ${nilm.Nix.orDefault (colorscheme != "") "vim.cmd([[colorscheme ${colorscheme}]])"}
     require("${name}-generated-config.globals")
     require("${name}-generated-config.set")
   '';
 
   setFile = pkgs.writeText "set.lua" ''
-    ${lua.toValidLuaInsert (pkgs.lib.attrsets.attrByPath ["lua"] "" set)}
-    ${lua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.opt.${name} = ${lua.toLua value};") "" (builtins.removeAttrs set ["lua"]))}
+    ${lua.toValidLuaInsert (Dict.getOr "lua" "" set)}
+    ${lua.toValidLuaInsert (Dict.foldl ( name: value: acc: acc + "vim.opt.${name} = ${lua.toLua value};") "" (Dict.remove "lua" set))}
   '';
 
   globalsFile = pkgs.writeText "globals.lua" ''
-    ${lua.toValidLuaInsert (if builtins.hasAttr "lua" globals then globals.lua else "")}
-    ${lua.toValidLuaInsert (pkgs.lib.foldlAttrs (acc: name: value: acc + "vim.g.${name} = ${lua.toLua value};") "" (builtins.removeAttrs globals ["lua"]))}
+    ${lua.toValidLuaInsert (Dict.getOr "lua" "" globals)}
+    ${lua.toValidLuaInsert (Dict.foldl (name: value: acc: acc + "vim.g.${name} = ${lua.toLua value};") "" (Dict.remove "lua" globals))}
   '';
 
   keybindindsFile = pkgs.writeText "${name}-generated-keybindinds.lua" ''
@@ -32,28 +34,28 @@ let
       return;
     end
     --{{ injected lua code
-    ${lua.toValidLuaInsert (pkgs.lib.attrsets.attrByPath ["lua"] "" keybinds)}
+    ${lua.toValidLuaInsert (Dict.getOr "lua" "" keybinds)}
     --}}
 
     -- KEYBINDINDS
     --{{ normal mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "normal" keybinds) ''whichkey.register(${lua.toLua keybinds.normal}, {mode = "n"});''}
+    ${nilm.Nix.orDefault (Dict.member "normal" keybinds) ''whichkey.register(${lua.toLua keybinds.normal}, {mode = "n"});''}
     --}}
 
     --{{ insert mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "insert" keybinds) ''whichkey.register(${lua.toLua keybinds.insert}, {mode = "i"});''}
+    ${nilm.Nix.orDefault (Dict.member "insert" keybinds) ''whichkey.register(${lua.toLua keybinds.insert}, {mode = "i"});''}
     --}}
 
     --{{ visual/select mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "visual" keybinds) ''whichkey.register(${lua.toLua keybinds.visual}, {mode = "v"});''}
+    ${nilm.Nix.orDefault (Dict.member "visual" keybinds) ''whichkey.register(${lua.toLua keybinds.visual}, {mode = "v"});''}
     --}}
 
     --{{ command mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
+    ${nilm.nix.orDefault (Dict.member "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
     --}}
 
     --{{ terminal mode
-    ${pkgs.lib.strings.optionalString (builtins.hasAttr "terminal" keybinds) ''whichkey.register(${lua.toLua keybinds.terminal}, {mode = "t"});''}
+    ${nilm.Nix.orDefault (Dict.member "terminal" keybinds) ''whichkey.register(${lua.toLua keybinds.terminal}, {mode = "t"});''}
     --}}
   '';
 in

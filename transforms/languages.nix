@@ -1,24 +1,25 @@
-{ pkgs, name, lua }:
+{ pkgs, name, lua, nilm }:
 languages_raw:
 let
-  languages = map (f: f { inherit pkgs; }) languages_raw;
+  inherit (nilm) Dict List String;
+  languages = List.map (f: f { inherit pkgs; }) languages_raw;
 
-  lang_has_setup = field: builtins.hasAttr "setup_${field}";
-  lang_has_NO = field: lang: !(builtins.hasAttr field lang);
+  lang_has_setup = field: Dict.member "setup_${field}";
+  lang_has_NO = field: lang: !(Dict.member field lang);
   lang_has_single = field: lang:
-    builtins.hasAttr field lang && !(builtins.isList lang.${field})
-    && !(builtins.hasAttr "${field}_options" lang);
+    Dict.member field lang && !(nilm.Nix.isA "list" lang.${field})
+    && !(Dict.member "${field}_options" lang);
   lang_has_single_with_options = field: lang:
-    builtins.hasAttr field lang && !(builtins.isList lang.${field})
-    && builtins.hasAttr "${field}_options" lang
-    && !(builtins.isList "${field}_options" lang.${"${field}_options"});
+    Dict.member field lang && !(nilm.Nix.isA "list" lang.${field})
+    && Dict.member "${field}_options" lang
+    && !(nilm.Nix.isA "list" lang."${field}_options");
   lang_has_mutliple = field: lang:
-    builtins.hasAttr field lang && builtins.isList lang.${field}
-    && !(builtins.hasAttr "${field}_options" lang);
+    Dict.member field lang && nilm.Nix.isA "list" lang.${field}
+    && !(Dict.member "${field}_options" lang);
   lang_has_mutliple_with_options = field: lang:
-    builtins.hasAttr field lang && builtins.hasAttr "${field}_options" lang
-    && builtins.isList lang.${field}
-    && builtins.isList lang.${"${field}_options"};
+    Dict.member field lang && Dict.member "${field}_options" lang
+    && nilm.Nix.isA "list" lang.${field}
+    && nilm.Nix.isA "list" lang."${field}_options";
 
   configure_lspconfig =
     { ls, options ? { cmd = [ (pkgs.lib.getExe ls) ]; } }: ''
@@ -42,13 +43,10 @@ let
             options = lang.ls_options;
           }
         else if lang_has_mutliple "ls" lang then
-          pkgs.lib.strings.concatMapStrings
-          (ls: configure_lspconfig { inherit ls; }) lang.ls
+          String.concat (List.map (ls: configure_lspconfig { inherit ls; }) lang.ls)
         else if lang_has_mutliple_with_options "ls" lang then
-          assert builtins.length lang.ls == builtins.length lang.ls_options;
-          pkgs.lib.strings.concatMapStrings configure_lspconfig
-          (pkgs.lib.lists.zipListsWith (ls: options: { inherit ls options; })
-            lang.ls lang.ls_options)
+          assert List.length lang.ls == List.length lang.ls_options;
+          String.concat (List.map2 (ls: options: configure_lspconfig { inherit ls options; }) lang.ls lang.ls_options)
         else
           builtins.abort ''
             Invalid language server configuration for ${lang.language}.
@@ -86,15 +84,10 @@ let
             options = lang.linters_options;
           }
         else if lang_has_mutliple "linters" lang then
-          pkgs.lib.strings.concatMapStrings
-          (linter: configure_null_ls_linter { inherit linter; }) lang.linters
+          String.concat (List.map (linter: configure_null_ls_linter { inherit linter; }) lang.linters)
         else if lang_has_mutliple_with_options "linters" lang then
-          assert builtins.length lang.linters
-            == builtins.length lang.linters_options;
-          pkgs.lib.strings.concatMapstrings configure_lspconfig
-          (pkgs.lib.lists.zipListsWith
-            (linter: options: { inherit linter options; }) lang.linters
-            lang.linters_options)
+          assert List.length lang.linters == List.length lang.linters_options;
+          String.concat (List.map2 (linter: options: configure_null_ls_linter {inherit linter options;}) lang.linters lang.linters_options)
         else
           builtins.abort ''
             Invalid linters configuration for ${lang.language}.
@@ -132,16 +125,10 @@ let
             options = lang.formatters_options;
           }
         else if lang_has_mutliple "formatters" lang then
-          pkgs.lib.strings.concatMapStrings
-          (formatter: configure_null_ls_formatter { inherit formatter; })
-          lang.formatters
+          String.concat (List.map  (formatter: configure_null_ls_formatter { inherit formatter; }) lang.formatters)
         else if lang_has_mutliple_with_options "formatters" lang then
-          assert builtins.length lang.formatters
-            == builtins.length lang.formatters_options;
-          pkgs.lib.strings.concatMapstrings configure_lspconfig
-          (pkgs.lib.lists.zipListsWith
-            (formatter: options: { inherit formatter options; }) lang.formatters
-            lang.formatters_options)
+          assert List.length lang.formatters == List.length lang.formatters_options;
+          String.concat (List.map2 (formatter: options: configure_null_ls_formatter { inherit formatter options; }) lang.formatters lang.formatters_options)
         else
           builtins.abort ''
             Invalid formatters configuration for ${lang.language}.
@@ -189,7 +176,8 @@ let
     null_ls.setup({sources = null_ls_sources})
   '';
 
-in ''
+in
+''
   cp ${compiled_lsp} $out/${name}/after/plugin/lsp.lua
   cp ${compiled_null_ls} $out/${name}/after/plugin/null-ls.lua
 ''

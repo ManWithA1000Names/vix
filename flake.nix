@@ -4,9 +4,10 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nilm.url = "github:manwitha1000names/nilm";
   };
 
-  outputs = { self, nixpkgs, flake-utils }: {
+  outputs = { self, nixpkgs, flake-utils, nilm }: {
     languages = {
       nix = import ./languages/nix.nix;
     };
@@ -20,7 +21,7 @@
     mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
-        lua = import ./lib/lua.nix { inherit pkgs; };
+        lua = import ./lib/lua.nix { inherit pkgs nilm; };
 
         complete_config = pkgs.runCommand "${name}-configuration" { } ''
           mkdir -p $out/${name}/lua/;
@@ -30,11 +31,11 @@
           mkdir -p $out/${name}/pack/${name}-plugins/opt/;
           echo "Beginning to generate the configurtion."
           echo "1/4 Created neccessary directories..." 
-          ${import ./transforms/neovim-config.nix {inherit pkgs lua name;} config}
+          ${import ./transforms/neovim-config.nix {inherit pkgs lua name nilm;} config}
           echo "2/4 Created neovim config..." 
-          ${import ./transforms/plugins.nix {inherit pkgs lua name;} plugins}
+          ${import ./transforms/plugins.nix {inherit pkgs lua name nilm;} plugins}
           echo "3/4 Created the plugins..." 
-          ${import ./transforms/languages.nix {inherit pkgs lua name;} languages}
+          ${import ./transforms/languages.nix {inherit pkgs lua name nilm;} languages}
           echo "4/4 Created the langauge presets..." 
           echo "Done generating the configurtion."
         '';

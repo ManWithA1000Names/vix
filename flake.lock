@@ -18,19 +18,18 @@
         "type": "github"
       }
     },
-    "lspconfig": {
-      "flake": false,
+    "nilm": {
       "locked": {
-        "lastModified": 1691128668,
-        "narHash": "sha256-jLpzJQcPGOhXBfLSzw2jOgmwI8L7gcIe8y2w0L2qPkg=",
-        "owner": "neovim",
-        "repo": "nvim-lspconfig",
-        "rev": "c0de180ddb3df36feef8ac3607670894d0e7497f",
+        "lastModified": 1692357841,
+        "narHash": "sha256-5R/Zgy8DpNKwIpod85quQFYtQ49dCDvNyuLy7g6HCxc=",
+        "owner": "manwitha1000names",
+        "repo": "nilm",
+        "rev": "70704d2410a4087a62f087ba1941a028e6780f03",
         "type": "github"
       },
       "original": {
-        "owner": "neovim",
-        "repo": "nvim-lspconfig",
+        "owner": "manwitha1000names",
+        "repo": "nilm",
         "type": "github"
       }
     },
@@ -50,46 +49,11 @@
         "type": "github"
       }
     },
-    "null-ls": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1688652536,
-        "narHash": "sha256-6KJtj9pbvBm6fOVpnyzO2fEVC+cVrw2XtZHOgq9ieIw=",
-        "owner": "jose-elias-alvarez",
-        "repo": "null-ls.nvim",
-        "rev": "db09b6c691def0038c456551e4e2772186449f35",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jose-elias-alvarez",
-        "repo": "null-ls.nvim",
-        "type": "github"
-      }
-    },
-    "plenary": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1689589150,
-        "narHash": "sha256-oRtNcURQzrIRS3D88tWAl3HuFHxVJr8m/zzL7xoa/II=",
-        "owner": "nvim-lua",
-        "repo": "plenary.nvim",
-        "rev": "267282a9ce242bbb0c5dc31445b6d353bed978bb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-lua",
-        "repo": "plenary.nvim",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "lspconfig": "lspconfig",
-        "nixpkgs": "nixpkgs",
-        "null-ls": "null-ls",
-        "plenary": "plenary",
-        "which-key": "which-key"
+        "nilm": "nilm",
+        "nixpkgs": "nixpkgs"
       }
     },
     "systems": {
@@ -104,22 +68,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "which-key": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1690570286,
-        "narHash": "sha256-B1+EHd2eH/EbD5Kip9PfhdPyyGfIkD6rsx0Z3rXvb5w=",
-        "owner": "folke",
-        "repo": "which-key.nvim",
-        "rev": "7ccf476ebe0445a741b64e36c78a682c1c6118b7",
-        "type": "github"
-      },
-      "original": {
-        "owner": "folke",
-        "repo": "which-key.nvim",
         "type": "github"
       }
     }

@@ -1,28 +1,18 @@
-{ pkgs }: rec {
-  toLuaTableKey = arg: if pkgs.lib.strings.hasPrefix "[" arg && pkgs.lib.strings.hasSuffix "]" arg then arg else "[ [[" + arg + "]] ]";
+{ nilm, pkgs }: rec {
+  toLuaTableKey = arg: if nilm.String.startsWith "[" arg && nilm.String.endsWith "]" arg then arg else nilm.String.concat [ "[ [[" arg "]] ]" ];
 
   toLua = arg:
-    if pkgs.lib.isString arg then
-      "[[" + arg + '']]''
-    else if pkgs.lib.isInt arg || pkgs.lib.isFloat arg then
-      builtins.toString arg
-    else if builtins.isNull arg then
-      "null"
-    else if pkgs.lib.isBool arg then
-      if arg then "true" else "false"
-    else if pkgs.lib.isPath arg then
-      builtins.toString arg
-    else if pkgs.lib.isList arg then
-      "{" + (pkgs.lib.lists.foldl (a: v: a + (toLua v) + ",") "" arg) + "}"
-    else if pkgs.lib.isDerivation arg then
-      builtins.toString arg
-    else if pkgs.lib.isAttrs arg then
-      "{" + (pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc + "${toLuaTableKey name} = ${toLua value},") "" arg) + "}"
-    else if pkgs.lib.isFunction arg then
-      let value = arg null; in assert pkgs.lib.isString value; value
-    else "";
+    if nilm.Nix.isA "string" arg then
+      nilm.String.concat [ "[[" arg '']]'' ]
+    else if nilm.Nix.isA "list" arg then
+      nilm.String.concat [ "{" (nilm.List.foldl (v: a: a + (toLua v) + ",") "" arg) "}" ]
+    else if nilm.Nix.isA "set" arg then
+      nilm.String.concat [ "{" (nilm.Dict.foldl (name: value: acc: acc + "${toLuaTableKey name} = ${toLua value},") "" arg) "}" ]
+    else if nilm.Nix.isA "lambda" arg then
+      let value = arg null; in assert nilm.Nix.isA "string" value; value
+    else nilm.String.toString arg;
 
-  toValidLuaInsert = str: if pkgs.lib.strings.hasSuffix ";" str || pkgs.lib.strings.hasSuffix "\n" str || str == "" then str else str + ";";
+  toValidLuaInsert = str: if nilm.String.endsWith ";" str || nilm.String.endsWith "\n" str || nilm.String.isEmpty str then str else str + ";";
 
   defaultPluginConfig = { name, config ? { }, setupFN ? "setup" }: ''
     local ok, plugin = pcall(require,"${name}");
