@@ -1,12 +1,23 @@
 { pkgs }:
 let
-  ls = pkgs.nodePackages.tailwindcss.overrideAttrs (final: prev: { name = "tailwindcss"; });
+  ls = pkgs.stdenv.mkDerivation rec {
+    name = "tailwindcss-language-server";
+    src = pkgs.fetchURL {
+      url = "https://registry.npmjs.org/@tailwindcss/language-server/-/language-server-0.0.13.tgz";
+      hash = "sha512-C5OKPG8F6IiSbiEgXMxskMsOnbzSGnZvKBxEGHUhBGIB/tlX5rc7Iv/prdwYrUj2Swhjj5TrXuxZgACo+blB4A==";
+    };
+    installPhase = ''
+      mkdir -p $out
+      cp -R ./bin/ $out
+    '';
+    meta.mainProgram = name;
+  };
 in
 {
   language = "tailwindcss";
   inherit ls;
   ls_options = {
-    cmd = [ ls "--stdio" ];
+    cmd = [ (pkgs.lib.getExe ls) "--stdio" ];
     filetypes = _: ''(function()
       local types = {"elm"};
       for _,type in ipairs(lspconfig.tailwindcss.filetypes) do
