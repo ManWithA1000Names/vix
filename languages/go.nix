@@ -1,11 +1,12 @@
 { pkgs }:
 let linters = pkgs.golangci-lint.overrideAttrs (final: prev: { name = "golanci_lint"; });
-in {
+in
+{
   language = "go";
   setup_ls = ''
     vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.gofumpt}"
     lspconfig.gopls.setup({
-       cmd = {"${pkgs.gopls}"},
+       cmd = {"${pkgs.lib.getExe pkgs.gopls}"},
        on_attach = function()
          pcall(vim.lsp.codelens.refresh)
        end,

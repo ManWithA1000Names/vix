@@ -10,6 +10,15 @@
   outputs = { self, nixpkgs, flake-utils, nilm }: {
     languages = {
       nix = import ./languages/nix.nix;
+      "c/cpp" = import ./languages/c_cpp.nix;
+      elm = import ./languages/elm.nix;
+      go = import ./languages/go.nix;
+      lua = import ./languages/lua.nix;
+      python = import ./languages/python.nix;
+      rust = import ./languages/rust.nix;
+      sh = import ./languages/sh.nix;
+      tailwindcss = import ./languages/tailwindcss.nix;
+      "ts/js" = import ./languages/ts_js.nix;
     };
 
     mkFlake = { name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
