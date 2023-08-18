@@ -39,23 +39,23 @@ let
 
     -- KEYBINDINDS
     --{{ normal mode
-    ${nilm.Nix.orDefault (Dict.member "normal" keybinds) ''whichkey.register(${lua.toLua keybinds.normal}, {mode = "n"});''}
+    ${if Dict.member "normal" keybinds then ''whichkey.register(${lua.toLua keybinds.normal}, {mode = "n"});'' else ""}
     --}}
 
     --{{ insert mode
-    ${nilm.Nix.orDefault (Dict.member "insert" keybinds) ''whichkey.register(${lua.toLua keybinds.insert}, {mode = "i"});''}
+    ${if Dict.member "insert" keybinds then ''whichkey.register(${lua.toLua keybinds.insert}, {mode = "i"});'' else ""}
     --}}
 
     --{{ visual/select mode
-    ${nilm.Nix.orDefault (Dict.member "visual" keybinds) ''whichkey.register(${lua.toLua keybinds.visual}, {mode = "v"});''}
+    ${if Dict.member "visual" keybinds then ''whichkey.register(${lua.toLua keybinds.visual}, {mode = "v"});'' else ""}
     --}}
 
     --{{ command mode
-    ${nilm.Nix.orDefault (Dict.member "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
+    ${if Dict.member "command" keybinds then ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});'' else ""}
     --}}
 
     --{{ terminal mode
-    ${nilm.Nix.orDefault (Dict.member "terminal" keybinds) ''whichkey.register(${lua.toLua keybinds.terminal}, {mode = "t"});''}
+    ${if Dict.member "terminal" keybinds then ''whichkey.register(${lua.toLua keybinds.terminal}, {mode = "t"});'' else ""}
     --}}
   '';
 in
