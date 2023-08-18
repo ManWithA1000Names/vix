@@ -1,4 +1,5 @@
 { pkgs }: {
+  language = "type/javascript";
   setup_ls = ''
     local util = require("lspconfig.util")
     lspconfig.tsserver.setup({
