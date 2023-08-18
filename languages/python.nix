@@ -1,4 +1,4 @@
-{ pgks }: {
+{ pkgs }: {
   language = "python";
   ls = pkgs.pyright;
   formatters = pkgs.black;
