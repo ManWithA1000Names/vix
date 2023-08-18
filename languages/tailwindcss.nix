@@ -2,7 +2,7 @@
 let
   ls = pkgs.stdenv.mkDerivation rec {
     name = "tailwindcss-language-server";
-    src = fetchurl {
+    src = builtins.fetchurl {
       url = "https://registry.npmjs.org/@tailwindcss/language-server/-/language-server-0.0.13.tgz";
       hash = "sha512-C5OKPG8F6IiSbiEgXMxskMsOnbzSGnZvKBxEGHUhBGIB/tlX5rc7Iv/prdwYrUj2Swhjj5TrXuxZgACo+blB4A==";
     };
