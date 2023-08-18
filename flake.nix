@@ -17,7 +17,7 @@
       python = import ./languages/python.nix;
       rust = import ./languages/rust.nix;
       sh = import ./languages/sh.nix;
-      tailwindcss = import ./languages/tailwindcss.nix;
+      tailwindCSS = import ./languages/tailwindcss.nix;
       "ts/js" = import ./languages/ts_js.nix;
     };
 
