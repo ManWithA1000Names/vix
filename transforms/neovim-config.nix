@@ -51,7 +51,7 @@ let
     --}}
 
     --{{ command mode
-    ${nilm.nix.orDefault (Dict.member "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
+    ${nilm.Nix.orDefault (Dict.member "command" keybinds) ''whichkey.register(${lua.toLua keybinds.command}, {mode = "c"});''}
     --}}
 
     --{{ terminal mode
