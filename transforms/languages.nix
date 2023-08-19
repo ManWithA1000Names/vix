@@ -1,7 +1,9 @@
 { pkgs, name, lua, nilm }:
 languages_raw:
 let
-  rename = { name, pkg, exe ? name }: pkg.overrideAttrs (f: p: { inherit name; pname = f.name; meta = p.meta // { mainProgram = exe; }; });
+  rename = { name, pkg, exe ? name }: pkg.overrideAttrs (f: p: { inherit name; meta = p.meta // { mainProgram = exe; }; });
+
+  getName = thing: (builtins.parseDrvName thing.name).name;
 
   inherit (nilm) Dict List String;
 
@@ -26,7 +28,7 @@ let
 
   configure_lspconfig =
     { ls, options ? { cmd = [ (pkgs.lib.getExe ls) ]; } }: ''
-      lspconfig.${pkgs.lib.getName ls}.setup(${lua.toLua options})
+      lspconfig.${getName ls}.setup(${lua.toLua options})
     '';
 
   compile_lspconfig = lang: ''
@@ -68,7 +70,7 @@ let
   configure_null_ls_linter =
     { linter, options ? { command = [ (pkgs.lib.getExe linter) ]; } }: ''
       table.insert(null_ls_sources, null_ls.builtins.diagnostics.${
-        pkgs.lib.getName linter
+        getName linter
       }.with(${lua.toLua options}))
     '';
 
@@ -109,7 +111,7 @@ let
   configure_null_ls_formatter =
     { formatter, options ? { command = [ (pkgs.lib.getExe formatter) ]; } }: ''
       table.insert(null_ls_sources, null_ls.builtins.formatting.${
-        pkgs.lib.getName formatter
+        getName formatter
       }.with(${lua.toLua options}))
     '';
 
