@@ -1,4 +1,4 @@
-{ pkgs }: {
+{ pkgs, rename }: {
   language = "elm";
-  ls = pkgs.elmPackages.elm-language-server.overrideAttrs (final: prev: { name = "elmls"; });
+  ls = rename { pkg = pkgs.elmPackages.elm-language-server; name = "elmls"; exe = "elm-language-server"; };
 }

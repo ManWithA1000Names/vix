@@ -1,10 +1,14 @@
-{ pkgs }:
+{ pkgs, rename }:
 let
-  ls = pkgs.nodePackages.bash-language-server.overrideAttrs
-    (final: prev: { name = "bashls"; });
-in {
-  language = "sh";
+  ls = rename {
+    pkg = pkgs.nodePackages.bash-language-server;
+    name = "bashls";
+    exe = "bash-language-server";
+  };
+in
+{
   inherit ls;
-  formatter = pkgs.shfmt;
-  linters = pkgs.shellcheck;
+  language = "sh";
+  formatters = pkgs.shfmt;
+  linters = rename { pkg = pkgs.shellcheck; name = "shellcheck"; };
 }

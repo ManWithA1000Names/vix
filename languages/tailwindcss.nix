@@ -1,7 +1,7 @@
-{ pkgs }:
+{ pkgs, rename }:
 let
   ls = pkgs.stdenv.mkDerivation rec {
-    name = "tailwindcss-language-server";
+    name = "tailwindcss";
     src = pkgs.fetchurl {
       url = "https://registry.npmjs.org/@tailwindcss/language-server/-/language-server-0.0.13.tgz";
       hash = "sha512-C5OKPG8F6IiSbiEgXMxskMsOnbzSGnZvKBxEGHUhBGIB/tlX5rc7Iv/prdwYrUj2Swhjj5TrXuxZgACo+blB4A==";
@@ -10,7 +10,7 @@ let
       mkdir -p $out
       cp -R ./bin/ $out
     '';
-    meta.mainProgram = name;
+    meta.mainProgram = "tailwindcss-language-server";
   };
 in
 {
@@ -26,7 +26,7 @@ in
       return types
     end)()'';
     settings = {
-      tailwindcss = {
+      tailwindCSS = {
         experimental = {
           classRegex = [
             "\\bclass[\\s(<|]+\"([^\"]*)\""

@@ -1,4 +1,4 @@
-{ pkgs }: {
+{ pkgs, rename }: {
   language = "rust";
   setup_ls = ''
         local ok, rust = pcall(require, "rust-tools")

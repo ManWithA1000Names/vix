@@ -1,4 +1,4 @@
-{ pkgs }: {
+{ pkgs, rename }: {
   language = "type/javascript";
   setup_ls = ''
     local util = require("lspconfig.util")
@@ -20,5 +20,5 @@
   '';
 
   linters = pkgs.nodePackages.eslint;
-  formatter = pkgs.nodePackages.prettier;
+  formatters = pkgs.nodePackages.prettier;
 }

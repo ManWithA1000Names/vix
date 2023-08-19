@@ -1,5 +1,5 @@
-{ pkgs }:
-let linters = pkgs.golangci-lint.overrideAttrs (final: prev: { name = "golanci_lint"; });
+{ pkgs, rename }:
+let linters = rename { pkg = pkgs.golangci-lint; name = "golanci_lint"; exe = "golangci-lint"; };
 in
 {
   language = "go";

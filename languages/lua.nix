@@ -1,8 +1,8 @@
-{ pkgs }:
+{ pkgs, rename }:
 let
-  ls = pkgs.lua-language-server.overrideAttrs
-    (finalAttrs: previousAttrs: { name = "lua_ls"; });
-in {
+  ls = rename { pkg = pkgs.lua-language-server; name = "lua_ls"; exe = "lua-language-server"; };
+in
+{
   inherit ls;
   language = "lua";
   ls_options = {

@@ -1,8 +1,11 @@
 { pkgs, name, lua, nilm }:
 languages_raw:
 let
+  rename = { name, pkg, exe ? name }: pkg.overrideAttrs (f: p: { inherit name; pname = f.name; meta = p.meta // { mainProgram = exe; }; });
+
   inherit (nilm) Dict List String;
-  languages = List.map (f: f { inherit pkgs; }) languages_raw;
+
+  languages = List.map (f: f { inherit pkgs rename; }) languages_raw;
 
   lang_has_setup = field: Dict.member "setup_${field}";
   lang_has_NO = field: lang: !(Dict.member field lang);
