@@ -20,7 +20,7 @@ in
     cmd = [ (pkgs.lib.getExe ls) "--stdio" ];
     filetypes = _: ''(function()
       local types = {"elm"};
-      for _,type in ipairs(lspconfig.tailwindcss.filetypes) do
+      for _,type in ipairs(lspconfig.tailwindcss.document_config.default_config.filetypes) do
         table.insert(types, type)
       end
       return types
