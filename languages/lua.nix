@@ -12,7 +12,7 @@ in
         diagnostics = { globals = [ "vim" ]; };
         workspace = {
           library = {
-            ${"[vim.fn.expand($VIMRUNTIME/lua)]"} = true;
+            ${''[vim.fn.expand("$VIMRUNTIME/lua")]''} = true;
             ${''[vim.fn.stdpath("config") .. /lua]''} = true;
             ${''[vim.fn.stdpath("config") .. /plugin]''} = true;
             ${''[vim.fn.stdpath("config") .. /after/plugin]''} = true;
