@@ -9,7 +9,7 @@ let
     installPhase = ''
       mkdir -p $out
       cp -R ./bin/ $out
-      chomd +x $out/bin/tailwindcss-language-server
+      chmod +x $out/bin/tailwindcss-language-server
     '';
     meta.mainProgram = "tailwindcss-language-server";
   };
