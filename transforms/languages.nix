@@ -28,7 +28,7 @@ let
 
   configure_lspconfig =
     { ls, options ? { cmd = [ (pkgs.lib.getExe ls) ]; } }: ''
-      lspconfig.${getName ls}.setup(${lua.toLua options});
+      lspconfig[ [[${getName ls}]] ].setup(${lua.toLua options});
     '';
 
   compile_lspconfig = lang: ''
@@ -69,9 +69,9 @@ let
 
   configure_null_ls_linter =
     { linter, options ? { command = [ (pkgs.lib.getExe linter) ]; } }: ''
-      table.insert(null_ls_sources, null_ls.builtins.diagnostics.${
+      table.insert(null_ls_sources, null_ls.builtins.diagnostics[ [[${
         getName linter
-      }.with(${lua.toLua options}))
+      }]] ].with(${lua.toLua options}))
     '';
 
   compile_null_ls_linters = lang: ''
@@ -110,9 +110,9 @@ let
 
   configure_null_ls_formatter =
     { formatter, options ? { command = [ (pkgs.lib.getExe formatter) ]; } }: ''
-      table.insert(null_ls_sources, null_ls.builtins.formatting.${
+      table.insert(null_ls_sources, null_ls.builtins.formatting[ [[${
         getName formatter
-      }.with(${lua.toLua options}))
+      }]] ].with(${lua.toLua options}))
     '';
 
   compile_null_ls_formatters = lang: ''
