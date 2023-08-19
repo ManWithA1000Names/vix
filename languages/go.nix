@@ -1,12 +1,14 @@
 { pkgs, rename }:
-let linters = rename { pkg = pkgs.golangci-lint; name = "golanci_lint"; exe = "golangci-lint"; };
+let
+  linters = rename { pkg = pkgs.golangci-lint; name = "golanci_lint"; exe = "golangci-lint"; };
+  ls = rename { pkg = pkgs.gopls; name = "gopls"; }; # to remove getExe warning.
 in
 {
   language = "go";
   setup_ls = ''
-    vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.gofumpt}"
+    vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.lib.getExe pkgs.gofumpt}"
     lspconfig.gopls.setup({
-       cmd = {"${pkgs.lib.getExe pkgs.gopls}"},
+       cmd = {"${pkgs.lib.getExe ls}"},
        on_attach = function()
          pcall(vim.lsp.codelens.refresh)
        end,

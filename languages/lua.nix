@@ -22,6 +22,6 @@ in
     };
   };
 
-  linters = pkgs.selene;
-  formatters = pkgs.stylua;
+  linters = rename { pkg = pkgs.selene; name = "selene"; }; # to remove getExe warning
+  formatters = rename { pkgs = pkgs.stylua; name = "stylua"; }; # to remove getExe warning
 }

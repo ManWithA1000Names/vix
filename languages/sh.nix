@@ -9,6 +9,6 @@ in
 {
   inherit ls;
   language = "sh";
-  formatters = pkgs.shfmt;
-  linters = rename { pkg = pkgs.shellcheck; name = "shellcheck"; };
+  formatters = rename { pkg = pkgs.shfmt; name = "shfmt"; }; # to remove getExe warning
+  linters = rename { pkg = pkgs.shellcheck; name = "shellcheck"; }; # to remove getExe warning
 }
