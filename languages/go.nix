@@ -1,6 +1,6 @@
 { pkgs, rename }:
 let
-  linters = rename { pkg = pkgs.golangci-lint; name = "golanci_lint"; exe = "golangci-lint"; };
+  linters = rename { pkg = pkgs.golangci-lint; name = "golangci_lint"; exe = "golangci-lint"; };
   ls = rename { pkg = pkgs.gopls; name = "gopls"; }; # to remove getExe warning.
   gofumpt = rename { pkg = pkgs.gofumpt; name = "gofumpt"; }; # to remove getExe warning.
 in
