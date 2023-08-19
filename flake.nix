@@ -19,6 +19,10 @@
       sh = import ./languages/sh.nix;
       tailwindcss = import ./languages/tailwindcss.nix;
       "ts/js" = import ./languages/ts_js.nix;
+      haskell = import ./languages/haskell.nix;
+      json = import ./languages/json.nix;
+      yaml = import ./languages/yaml.nix;
+      toml = import ./languages/toml.nix;
     };
 
     mkFlake = { name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
