@@ -1,7 +1,7 @@
 { pkgs, rename }:
 let
   tsserver = rename { pkg = pkgs.nodePackages.typescript-language-server; name = "tsserver"; exe = "typescript-language-server"; }; # to remove getExe warning
-  deno = renmae { pkg = pkgs.deno; name = "deno"; }; # to remove getExe warning
+  deno = rename { pkg = pkgs.deno; name = "deno"; }; # to remove getExe warning
 in
 {
   language = "type/javascript";
