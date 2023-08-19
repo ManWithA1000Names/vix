@@ -28,7 +28,7 @@ let
 
   configure_lspconfig =
     { ls, options ? { cmd = [ (pkgs.lib.getExe ls) ]; } }: ''
-      lspconfig.${getName ls}.setup(${lua.toLua options})
+      lspconfig.${getName ls}.setup(${lua.toLua options});
     '';
 
   compile_lspconfig = lang: ''
@@ -37,7 +37,7 @@ let
         if lang_has_setup "ls" lang then ''
           (function()
             ${lua.toValidLuaInsert lang.setup_ls}
-          end)()
+          end)();
         '' else if lang_has_NO "ls" lang then
           "-- No language servers were configured"
         else if lang_has_single "ls" lang then
@@ -150,8 +150,8 @@ let
   '';
 
   compiled_lsp = pkgs.writeText "lsp.lua" ''
-    local ok, lspconfig = pcall(require, "lspconfig");
-    if not ok then
+    local lspconfig_ok, lspconfig = pcall(require, "lspconfig");
+    if not lspconfig_ok then
       print([[Requiering 'lspconfig' failed!]], lspconfig);
       return;
     end
@@ -161,8 +161,8 @@ let
   '';
 
   compiled_null_ls = pkgs.writeText "null-ls.lua" ''
-    local ok, null_ls = pcall(require, "null-ls");
-    if not ok then
+    local null_ls_ok, null_ls = pcall(require, "null-ls");
+    if not null_ls_ok then
       print([[Requiering 'null-ls' failed!]], null_ls)
       return;
     end
