@@ -1,5 +1,5 @@
 { pkgs, rename }: rec {
-  langauge = "yaml";
+  language = "yaml";
   ls = rename { pkg = pkgs.yaml-language-server; name = "yamlls"; exe = "yaml-language-server"; };
   ls_options = {
     cmd = [ (pkgs.lib.getExe ls) ];
