@@ -35,7 +35,7 @@ let
       (tool: _:
         if !(Dict.member "type" tool) then
           builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover".''
-        else if too.type != "language-server" && tool.type != "diagnostics" && tool.type != "formatting" && tool.type != "code_actions" && tool.type != "completion" && tool.type != "hover" then
+        else if tool.type != "language-server" && tool.type != "diagnostics" && tool.type != "formatting" && tool.type != "code_actions" && tool.type != "completion" && tool.type != "hover" then
           builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover". Found: "${tool.type}"''
         else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
           builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
