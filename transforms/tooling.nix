@@ -48,7 +48,7 @@ let
         else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
           builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
         else
-          true
+          builtins.abort "Is this working?"
       )
       true
       tools;
