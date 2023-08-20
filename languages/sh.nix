@@ -1,14 +1,18 @@
-{ pkgs, rename }:
-let
-  ls = rename {
+pkgs: [
+  {
+    type = "language-server";
     pkg = pkgs.nodePackages.bash-language-server;
     name = "bashls";
     exe = "bash-language-server";
-  };
-in
-{
-  inherit ls;
-  language = "sh";
-  formatters = rename { pkg = pkgs.shfmt; name = "shfmt"; }; # to remove getExe warning
-  linters = rename { pkg = pkgs.shellcheck; name = "shellcheck"; }; # to remove getExe warning
-}
+  }
+  {
+    type = "formatting";
+    pkg = pkgs.shfmt;
+    exe = "shfmt";
+  }
+  {
+    type = "diagnostics";
+    pkg = pkgs.shellcheck;
+    exe = "shellcheck";
+  }
+]

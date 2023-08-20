@@ -8,14 +8,13 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, nilm }: {
-    languages = {
+    tool_presets_per_language = {
       nix = import ./languages/nix.nix;
       "c/cpp" = import ./languages/c_cpp.nix;
       elm = import ./languages/elm.nix;
       go = import ./languages/go.nix;
       lua = import ./languages/lua.nix;
       python = import ./languages/python.nix;
-      rust = import ./languages/rust.nix;
       sh = import ./languages/sh.nix;
       tailwindcss = import ./languages/tailwindcss.nix;
       "ts/js" = import ./languages/ts_js.nix;
@@ -25,13 +24,13 @@
       toml = import ./languages/toml.nix;
     };
 
-    mkFlake = { name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
+    mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
-        let theDerivation = self.mkDerivation { inherit system name config plugins languages; }; in
+        let theDerivation = self.mkDerivation (args // { inherit system; }); in
         { packages = { ${name} = theDerivation; default = theDerivation; }; }
       );
 
-    mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], languages ? [ ] }:
+    mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], tools ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit pkgs nilm; };
@@ -48,8 +47,8 @@
           echo "2/4 Created neovim config..." 
           ${import ./transforms/plugins.nix {inherit pkgs lua name nilm;} plugins}
           echo "3/4 Created the plugins..." 
-          ${import ./transforms/languages.nix {inherit pkgs lua name nilm;} languages}
-          echo "4/4 Created the langauge presets..." 
+          ${import ./transforms/tooling.nix {inherit pkgs lua name nilm;} tools}
+          echo "4/4 Created the tooling configurations..." 
           echo "Done generating the configurtion."
         '';
       in

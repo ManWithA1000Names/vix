@@ -1,21 +1,36 @@
-{ pkgs, rename }: rec {
-  language = "yaml";
-  ls = rename { pkg = pkgs.yaml-language-server; name = "yamlls"; exe = "yaml-language-server"; };
-  ls_options = {
-    cmd = [ (pkgs.lib.getExe ls) ];
-    settings = {
-      yaml = {
-        schemaStore = {
-          enable = true;
-          url = "";
+pkgs: [
+  {
+    type = "language-server";
+    pkg = pkgs.yaml-language-server;
+    name = "yamlls";
+    exe = "yaml-language-server";
+    options = {
+      settings = {
+        yaml = {
+          schemaStore = {
+            enable = true;
+            url = "";
+          };
+          schemas = _: ''(function()
+            local ok, schemastore = pcall(require, "schemastore")
+            if not ok then return {} end
+            return schemastore.yaml.schemas()
+          end)()'';
         };
-        schemas = _: ''(function()
-          local ok, schemastore = pcall(require, "schemastore")
-          if not ok then return {} end
-          return schemastore.yaml.schemas()
-        end)()'';
       };
     };
-  };
-  linters = [ pkgs.actionlint pkgs.yamllint ];
-}
+  }
+  {
+    type = "diagnostics";
+    pkg = pkgs.actionlint;
+  }
+  {
+    type = "diagnostics";
+    pkg = pkgs.yamllint;
+  }
+  {
+    type = "formatting";
+    pkg = pkgs.nodePackages.prettier;
+    exe = "prettier";
+  }
+]

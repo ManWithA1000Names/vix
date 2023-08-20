@@ -1,4 +1,4 @@
-{ pkgs, rename }: rec {
-  language = "toml";
-  ls = pkgs.taplo;
-}
+pkgs: [{
+  type = "language-server";
+  pkg = pkgs.taplo;
+}]

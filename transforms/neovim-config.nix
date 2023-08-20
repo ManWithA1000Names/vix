@@ -11,6 +11,8 @@ let
 
   initFile = pkgs.writeText "init.lua" ''
     ${if enable_vim_loader then "vim.loader.enable()" else "vim.loader.disable()"}
+    vim.env.XDG_CONFIG_HOME = vim.env.OG_XDG_CONFIG_HOME;
+    vim.env.OG_XDG_CONFIG_HOME = nil;
     ${lua.toValidLuaInsert init}
     ${nilm.Nix.orDefault (colorscheme != "") "vim.cmd([[colorscheme ${colorscheme}]])"}
     require("${name}-generated-config.globals")

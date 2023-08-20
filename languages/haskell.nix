@@ -1,4 +1,8 @@
-{ pkgs, rename }: {
-  language = "haskell";
-  ls = rename { pkg = pkgs.haskell-language-server; name = "hls"; exe = "haskell-language-server"; };
-}
+pkgs: [
+  {
+    type = "language-server";
+    pkgs = pkgs.haskell-language-server;
+    name = "hls";
+    exe = "haskell-language-server";
+  }
+]

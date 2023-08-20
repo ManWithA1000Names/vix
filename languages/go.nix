@@ -1,32 +1,31 @@
-{ pkgs, rename }:
-let
-  linters = rename { pkg = pkgs.golangci-lint; name = "golangci_lint"; exe = "golangci-lint"; };
-  ls = rename { pkg = pkgs.gopls; name = "gopls"; }; # to remove getExe warning.
-  gofumpt = rename { pkg = pkgs.gofumpt; name = "gofumpt"; }; # to remove getExe warning.
-in
-{
-  language = "go";
-  setup_ls = ''
-    vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.lib.getExe gofumpt}"
-    lspconfig.gopls.setup({
-       cmd = {"${pkgs.lib.getExe ls}"},
-       on_attach = function()
-         pcall(vim.lsp.codelens.refresh)
-       end,
-       settings = {
-         gopls = {
-           gofumpt = true,
-           usePlaceholders = true, 
-           codelenses = {
-             generate = false,
-             gc_details = true,
-             test = true,
-             tidy = true,
-           },
-         },
-       },
-    });
-  '';
-
-  inherit linters;
-}
+pkgs: [
+  {
+    type = "language-server";
+    pkg = pkgs.gopls;
+    lua = ''
+      vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.lib.getBin pkgs.gofumpt}/bin/gofumpt"
+    '';
+    exe = "gopls";
+    options = {
+      on_attach = _: ''function() pcall(vim.lsp.codelens.refresh) end'';
+      settings = {
+        gopls = {
+          gofumpt = true;
+          usePlaceholders = true;
+          codelenses = {
+            generate = false;
+            gc_details = true;
+            test = true;
+            tidy = true;
+          };
+        };
+      };
+    };
+  }
+  {
+    type = "diagnostics";
+    pkg = pkgs.golangci-lint;
+    name = "golangci_lint";
+    exe = "golangci-lint";
+  }
+]

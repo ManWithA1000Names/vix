@@ -1,29 +1,35 @@
-{ pkgs, rename }:
-let
-  tsserver = rename { pkg = pkgs.nodePackages.typescript-language-server; name = "tsserver"; exe = "typescript-language-server"; }; # to remove getExe warning
-  deno = rename { pkg = pkgs.deno; name = "deno"; }; # to remove getExe warning
-in
-{
-  language = "type/javascript";
-  setup_ls = ''
-    local util = require("lspconfig.util")
-    lspconfig.tsserver.setup({
-      cmd = {"${pkgs.lib.getExe tsserver}", "--stdio"},
-      root_dir = function(fname)
-        util.root_pattern("package.json")(fname) 
-      end,
-      single_file_support = false,
-    });
-
-    lspconfig.denols.setup({
-      cmd = {"${pkgs.lib.getExe deno}", "lsp"},
-      root_dir = function(fname)
-        util.root_pattern("deno.json", "deno.jsonc")(fname)
-      end,
-      single_file_support = false,
-    })
-  '';
-
-  linters = rename { pkg = pkgs.nodePackages.eslint; name = "eslint"; }; # to remove getExe warning
-  formatters = rename { pkg = pkgs.nodePackages.prettier; name = "prettier"; }; # to remove getExe warning
-}
+pkgs: [
+  {
+    type = "language-server";
+    pkg = pkgs.nodePackages.typescript-language-server;
+    name = "tsserver";
+    exe = "typescript-language-server";
+    options = {
+      root_dir = _: ''function(fname)
+          return util.root_pattern("package.json")(fname)
+        end'';
+      single_file_support = false;
+    };
+  }
+  {
+    type = "language-server";
+    pkg = pkgs.deno;
+    name = "denols";
+    exe = "deno";
+    options = {
+      root_dir = ''fucntion(fname)
+          return util.root_pattern("deno.json", "deno.jsonc")(fname)
+        end'';
+    };
+  }
+  {
+    type = "diagnositcs";
+    pkg = pkgs.nodePackages.eslint;
+    exe = "eslint";
+  }
+  {
+    type = "formatting";
+    pkg = pkgs.nodePackages.prettier;
+    exe = "prettier";
+  }
+]

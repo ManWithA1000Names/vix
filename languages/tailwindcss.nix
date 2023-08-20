@@ -1,4 +1,4 @@
-{ pkgs, rename }:
+pkgs:
 let
   ls = pkgs.stdenv.mkDerivation rec {
     name = "tailwindcss";
@@ -14,17 +14,14 @@ let
     meta.mainProgram = "tailwindcss-language-server";
   };
 in
-{
-  language = "tailwindcss";
-  inherit ls;
-  ls_options = {
-    cmd = [ (pkgs.lib.getExe ls) "--stdio" ];
+[{
+  type = "language-server";
+  pkg = ls;
+  options = {
     filetypes = _: ''(function()
-      local types = {"elm"};
-      for _,type in ipairs(lspconfig.tailwindcss.document_config.default_config.filetypes) do
-        table.insert(types, type)
-      end
-      return types
+      local ft = vim.deepcopy(lspconfig.tailwindcss.document_config.default_config.filetypes)
+      table.insert(ft, "elm")
+      return ft
     end)()'';
     settings = {
       tailwindCSS = {
@@ -43,4 +40,4 @@ in
       };
     };
   };
-}
+}]
