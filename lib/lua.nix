@@ -15,13 +15,13 @@
   toValidLuaInsert = str: if nilm.String.endsWith ";" str || nilm.String.endsWith "\n" str || nilm.String.isEmpty str then str else str + ";";
 
   defaultPluginConfig = { name, config ? { }, setupFN ? "setup" }: ''
-    local ok, plugin = pcall(require,"${name}");
-    if not ok then
+    local require_ok, plugin = pcall(require,"${name}");
+    if not require_ok then
       print([[Operation failed: require("${name}"). Are you sure the name of plugin is correct?]]);
     end
     if plugin.${setupFN} ~= nil then
       local arg = ${toLua config};
-      local ok = pcall(plugin.${setupFN}, args)
+      local ok = pcall(plugin.${setupFN}, arg)
       if not ok then
         print([[Failed to setup plugin '${name}'. Error returned when calling 'plugin.${setupFN}(]] .. vim.inspect(arg) .. [[)']])
       end
