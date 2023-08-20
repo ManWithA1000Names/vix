@@ -20,6 +20,7 @@ let
         return og_stdpath
       end
     end)();
+    print(vim.fn.stdpath("config"))
     vim.env.XDG_CONFIG_HOME = vim.env.OG_XDG_CONFIG_HOME;
     vim.env.OG_XDG_CONFIG_HOME = nil;
     ${lua.toValidLuaInsert init}
