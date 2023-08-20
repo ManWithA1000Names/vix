@@ -11,6 +11,15 @@ let
 
   initFile = pkgs.writeText "init.lua" ''
     ${if enable_vim_loader then "vim.loader.enable()" else "vim.loader.disable()"}
+    print(vim.env.XDG_CONFIG_HOME);
+    vim.fn.stdpath = (function()
+      local og_stdpath = vim.fn.stdpath;
+      local config_dir = vim.env.XDG_CONFIG_HOME;
+      return function(category)
+        if category == "config" then return config_dir end 
+        return og_stdpath
+      end
+    end)();
     vim.env.XDG_CONFIG_HOME = vim.env.OG_XDG_CONFIG_HOME;
     vim.env.OG_XDG_CONFIG_HOME = nil;
     ${lua.toValidLuaInsert init}
