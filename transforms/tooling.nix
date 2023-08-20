@@ -144,7 +144,7 @@ let
           print([[lspconfig does not seem to be installed!]])
           return
         end
-        local util = require("lspconfig.util")
+        local util = require("lspconfig.util");
 
         -- AUTO CONFIGURED
         ${lua.toValidLuaInsert (List.foldl (ls: acc: acc + "\n" + configure-language-server ls) "" auto-configured)}
