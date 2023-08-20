@@ -7,7 +7,7 @@ pkgs: [
 
   {
     type = "diagnostics";
-    pkg = pkgs.ccpcheck;
+    pkg = pkgs.cppcheck;
     exe = "cppcheck";
   }
 ]
