@@ -1,5 +1,6 @@
 pkgs: [
   {
+    type = "language-server";
     pkg = pkgs.lua-language-server;
     name = "lua_ls";
     exe = "lua-language-server";
