@@ -17,7 +17,7 @@ let
       local config_dir = vim.env.XDG_CONFIG_HOME;
       return function(category)
         if category == "config" then return config_dir end 
-        return og_stdpath
+        return og_stdpath(category)
       end
     end)();
     print(vim.fn.stdpath("config"))
