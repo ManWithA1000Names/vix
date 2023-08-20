@@ -1,6 +1,6 @@
 { name, lua, pkgs, nilm }: tool_fns:
 let
-  inherit (nilm) List Dict;
+  inherit (nilm) List Dict String;
   # example = {
   #   type = "language-server";
   #   pkg = pkgs.taplo;
@@ -48,14 +48,14 @@ let
         else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
           builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
         else
-          builtins.abort "Is this working?"
+          true
       )
       true
       tools;
     in assert they_are_valid; tools;
 
   tools = validate (Dict.values merged_tools_set);
-  language-servers = List.filter (item: item.type == "language-server") tools;
+  language-servers = List.filter (item: builtins.abort (String.toString item) /*item.type == "language-server"*/) tools;
   null-ls-tools = List.filter (item: item.type != "language-server") tools;
 
   configure-language-server = { type, pkg, ... }@tool:
