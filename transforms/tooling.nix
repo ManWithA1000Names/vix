@@ -90,7 +90,7 @@ let
   configure-null-ls = { type, pkg, ... }@tool:
     let
       name = getName tool;
-      exe-path = getExe too;
+      exe-path = getExe tool;
     in
     if Dict.member "manual-setup" tool then
       ''
