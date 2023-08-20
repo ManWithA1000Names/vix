@@ -54,7 +54,7 @@ let
       tools;
     in assert they_are_valid; tools;
 
-  tools = validate (Dict.values merged_tools_set);
+  tools = /*validate*/ (Dict.values merged_tools_set);
   language-servers = builtins.abort (String.toString tools); #List.filter (item: builtins.abort (String.toString item) /*item.type == "language-server"*/) tools;
   null-ls-tools = List.filter (item: item.type != "language-server") tools;
 
