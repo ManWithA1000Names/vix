@@ -17,7 +17,7 @@ pkgs: [
     name = "denols";
     exe = "deno";
     options = {
-      root_dir = ''fucntion(fname)
+      root_dir = _: ''function(fname)
           return util.root_pattern("deno.json", "deno.jsonc")(fname)
         end'';
     };

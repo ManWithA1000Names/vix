@@ -107,7 +107,7 @@ let
     else
       ''
         --{{ Setting up a ${type} tool: '${name}'
-        (function
+        (function()
           ${if Dict.member "lua" tool then lua.toValidLuaInsert tool.lua else ""}
           local source = null_ls.builtins.${type}[ [[${name}]] ];
           if source == nil then
