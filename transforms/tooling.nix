@@ -1,4 +1,4 @@
-{ name, lua, pkgs, nilm }: tools:
+{ name, lua, pkgs, nilm }: tool_fns:
 let
   inherit (nilm) List Dict;
   # example = {
@@ -16,7 +16,7 @@ let
   getName = tool: if Dict.member "name" tool then tool.name else if Dict.member "exe" tool then tool.exe else if Dict.member "pkg" tool then pkgs.lib.getName tool.pkg else builtins.abort "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
   getExe = tool: if Dict.member "exe" tool then ''${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}'' else pkgs.lib.getExe tool.pkg;
 
-  applied_tools = List.map (tool_fn: tool_fn pkgs) tools;
+  applied_tools = List.map (nilm.Basics."|>" pkgs) tool_fns;
 
   merged_tools_set = List.foldl
     (tool: acc:
