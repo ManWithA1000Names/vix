@@ -23,7 +23,7 @@ pkgs: [
     };
   }
   {
-    type = "diagnositcs";
+    type = "diagnostics";
     pkg = pkgs.nodePackages.eslint;
     exe = "eslint";
   }
