@@ -54,9 +54,9 @@ let
       tools;
     in assert they_are_valid; tools;
 
-  tools = builtins.abort (String.toString merged_tools_set)/*validate (Dict.values merged_tools_set)*/;
-  language-servers = builtins.abort (String.toString tools); #List.filter (item: builtins.abort (String.toString item) /*item.type == "language-server"*/) tools;
-  null-ls-tools = builtins.abort (String.toString tools) List.filter (item: item.type != "language-server") tools;
+  tools = validate (Dict.values merged_tools_set);
+  language-servers = List.filter (item: if Dict.member "type" item then item.type == "language-server" else builtins.abort "Doens't have a type: ${getName item}") tools;
+  null-ls-tools = List.filter (item: item.type != "language-server") tools;
 
   configure-language-server = { type, pkg, ... }@tool:
     let
