@@ -11,7 +11,7 @@ let
         config_file = pkgs.writeText "${name}.lua" (if nilm.Nix.isA "set" config then lua.defaultPluginConfig { inherit name setupFN config; }
         else if nilm.Nix.isA "lambda" config then
           let res = config pkgs; in
-          if nilm.Nix.isA "set" res then lua.defaultPluginConfig { inherit name setupFN config; }
+          if nilm.Nix.isA "set" res then lua.defaultPluginConfig { inherit name setupFN; config = res; }
           else res
         else config);
       in
