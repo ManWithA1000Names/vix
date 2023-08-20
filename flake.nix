@@ -27,7 +27,7 @@
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation (args // { inherit system; }); in
-        { packages = { ${name} = theDerivation; default = theDerivation; }; }
+        { packages = { ${theDerivation.name} = theDerivation; default = theDerivation; }; }
       );
 
     mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], tools ? [ ] }:
