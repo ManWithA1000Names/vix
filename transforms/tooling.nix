@@ -48,11 +48,11 @@ let
         else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
           builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
         else
-          null
+          true
       )
-      null
+      true
       tools;
-    in tools;
+    in assert they_are_valid; tools;
 
   tools = validate (Dict.values merged_tools_set);
   language-servers = List.filter (item: item.type == "language-server") tools;
