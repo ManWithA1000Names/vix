@@ -8,7 +8,12 @@ let
       compile_plugin_source { inherit src; dir = if opt then "opt" else "start"; }
     else
       let
-        config_file = pkgs.writeText "${name}.lua" (if nilm.Nix.isA "set" config then lua.defaultPluginConfig { inherit name setupFN config; } else config);
+        config_file = pkgs.writeText "${name}.lua" (if nilm.Nix.isA "set" config then lua.defaultPluginConfig { inherit name setupFN config; }
+        else if nilm.Nix.isA "lambda" config then
+          let res = config pkgs; in
+          if nilm.Nix.isA "set" res then lua.defaultPluginConfig { inherit name setupFN config; }
+          else res
+        else config);
       in
       ''
         cp ${config_file} $out/${app_name}/${if urgent then "plugin" else "after/plugin"}/;
