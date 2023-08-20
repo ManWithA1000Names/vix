@@ -38,25 +38,19 @@ let
     applied_tools;
 
 
-  validate = tools:
-    let they_are_valid = List.foldl
-      (tool: _:
-        if !(Dict.member "type" tool) then
-          builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover".''
-        else if tool.type != "language-server" && tool.type != "diagnostics" && tool.type != "formatting" && tool.type != "code_actions" && tool.type != "completion" && tool.type != "hover" then
-          builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover". Found: "${tool.type}"''
-        else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
-          builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
-        else
-          true
-      )
-      true
-      tools;
-    in assert they_are_valid; tools;
+  valid_tool = tool:
+    if !(Dict.member "type" tool) then
+      builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover".''
+    else if tool.type != "language-server" && tool.type != "diagnostics" && tool.type != "formatting" && tool.type != "code_actions" && tool.type != "completion" && tool.type != "hover" then
+      builtins.abort ''While processing tool: ${getName tool}. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover". Found: "${tool.type}"''
+    else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
+      builtins.abort ''While processing tool: "${getName tool}". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
+    else
+      true;
 
-  tools = validate (Dict.values merged_tools_set);
-  language-servers = List.filter (item: if Dict.member "type" item then item.type == "language-server" else builtins.abort "Doens't have a type: ${getName item}") tools;
-  null-ls-tools = List.filter (item: item.type != "language-server") tools;
+  tools = Dict.values merged_tools_set;
+  language-servers = List.filter (tool: assert valid_tool tool; tool.type == "language-server") tools;
+  null-ls-tools = List.filter (tool: assert valid_tool tool; tool.type != "language-server") tools;
 
   configure-language-server = { type, pkg, ... }@tool:
     let
