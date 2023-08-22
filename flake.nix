@@ -26,11 +26,16 @@
 
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
-        let theDerivation = self.mkDerivation (args // { inherit system; }); in
-        { packages = { ${theDerivation.name} = theDerivation; default = theDerivation; }; }
-      );
+        let theDerivation = self.mkDerivation (args // { inherit system; });
+        in {
+          packages = {
+            ${theDerivation.name} = theDerivation;
+            default = theDerivation;
+          };
+        });
 
-    mkDerivation = { system, name ? "vix", config ? { }, plugins ? [ ], tools ? [ ] }:
+    mkDerivation =
+      { system, name ? "vix", config ? { }, plugins ? [ ], tools ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit pkgs nilm; };
@@ -43,16 +48,21 @@
           mkdir -p $out/${name}/pack/${name}-plugins/opt/;
           echo "Beginning to generate the configurtion."
           echo "1/4 Created neccessary directories..." 
-          ${import ./transforms/neovim-config.nix {inherit pkgs lua name nilm;} config}
+          ${import ./transforms/neovim-config.nix {
+            inherit pkgs lua name nilm;
+            which-key-in-plugins =
+              nilm.List.any (p: p.name == "which-key") plugins;
+          } config}
           echo "2/4 Created neovim config..." 
-          ${import ./transforms/plugins.nix {inherit pkgs lua name nilm;} plugins}
+          ${import ./transforms/plugins.nix { inherit pkgs lua name nilm; }
+          plugins}
           echo "3/4 Created the plugins..." 
-          ${import ./transforms/tooling.nix {inherit pkgs lua name nilm;} tools}
+          ${import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
+          tools}
           echo "4/4 Created the tooling configurations..." 
           echo "Done generating the configurtion."
         '';
-      in
-      pkgs.writeScriptBin name ''
+      in pkgs.writeScriptBin name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";
