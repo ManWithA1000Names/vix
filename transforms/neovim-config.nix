@@ -24,9 +24,9 @@ let
     else if Dict.getOr "${mode}.useWhichKey" false keybinds
     && which-key-in-plugins then
       ''
-        whichkey.register(${lua.toLua keybinds.${mode}}, {mode = "${
-          mode_to_mode mode
-        }"});''
+        whichkey.register(${
+          lua.toLua (Dict.remove "useWhichKey" keybinds.${mode})
+        }, {mode = "${mode_to_mode mode}"});''
     else
       lua.toKeybindings (mode_to_mode mode) keybinds.${mode};
 
