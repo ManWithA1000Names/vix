@@ -115,7 +115,7 @@ let
   compile-maybe-lazy-plugins = compile-plugins-generic compile-maybe-lazy-plugin;
 
   # The combined shell commands (string) to 'install' all the raw-plugins.
-  compile-raw-plugins = compile-plugins-generic (_: src: copy-over-source { inherit src; });
+  compile-raw-plugins = compile-plugins-generic (_: src: copy-source { inherit src; });
 
   # Generate the appropriate code that loads the the plugins in the set
   # and runs their setup code.  All of the plugins in the set have the same events and pattern,
