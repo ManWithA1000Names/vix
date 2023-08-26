@@ -89,7 +89,7 @@ let
 
   # Generate the appropriate shell command to place the source code of a plugin in the correct place.
   copy-source = { src, name ? "", opt ? false }:
-    "cp -R ${plugin} $out/${app-name}/pack/${app-name}-plugins/${if opt then "opt" else "start"}/${Nix.orDefault opt (name + "/")};";
+    "cp -R ${src} $out/${app-name}/pack/${app-name}-plugins/${if opt then "opt" else "start"}/${Nix.orDefault opt (name + "/")};";
 
 
   # Generate the appropriate shell command to 'install' a maybe-lazy-plugin.
