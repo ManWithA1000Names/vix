@@ -4,7 +4,7 @@ let
     if nilm.Nix.isA "tuple" value then
       nilm.String.toString (nilm.Tuple.first value)
     else if nilm.Nix.isA "list" value then
-      if nilm.List.length value 0 then
+      if nilm.List.length value == 0 then
         builtins.abort "Found keymapping (${key}) to a list of length 0!"
       else
         nilm.String.toString (nilm.List.get 0 value)
