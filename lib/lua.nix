@@ -74,12 +74,12 @@ rec {
     else trimmed + nilm.Nix.orDeafult (! nilm.String.endsWith ";") ";" + "\n";
 
   # convert a list into valid format to be used as arguments to a lua function.
-  toArgs = nilm.Basics.compose [ nim.String.concat (nilm.List.intersperse ",") (nilm.List.map toLua) ];
+  toArgs = nilm.Basics.compose [ nilm.String.concat (nilm.List.intersperse ",") (nilm.List.map toLua) ];
 
   defaultPluginSetup = { name, lua ? "", setup ? { }, setupfn ? "setup" }:
     let
       arg =
-        if nim.Nix.isA "bool" setup then
+        if nilm.Nix.isA "bool" setup then
           "{}"
         else if nilm.Nix.isA "list" setup then
           toArgs setup
