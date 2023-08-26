@@ -24,9 +24,9 @@ let
       builtins.abort "Unrecognized keybind mode: ${mode}";
 
   produceKeybindings = mode:
-    if !(Dict.member-raw mode keybinds) then
+    if !(Dict.member mode keybinds) then
       ""
-    else if Dict.getOr "${mode}.useWhichKey" false keybinds
+    else if Dict.getOr-rec "${mode}.useWhichKey" false keybinds
       && which-key-in-plugins then
       ''
         whichkey.register(${
@@ -83,7 +83,7 @@ let
   '';
 
   shouldRequireWhichKey = nilm.List.foldl
-    (m: acc: acc || Dict.getOr "${m}.useWhichKey" false keybinds)
+    (m: acc: acc || Dict.getOr-rec "${m}.useWhichKey" false keybinds)
     false [ "normal" "insert" "visual" "command" "terminal" ];
 
   keybindindsFile = pkgs.writeText "${name}-generated-keybindinds.lua" ''
