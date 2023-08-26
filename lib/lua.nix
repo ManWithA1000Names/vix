@@ -71,7 +71,7 @@ rec {
   toValidLuaInsert = str:
     let trimmed = nilm.String.trim str; in
     if nilm.String.isEmpty trimmed then trimmed
-    else trimmed + nilm.Nix.orDeafult (! nilm.String.endsWith ";") ";" + "\n";
+    else trimmed + nilm.Nix.orDefault (! nilm.String.endsWith ";") ";" + "\n";
 
   # convert a list into valid format to be used as arguments to a lua function.
   toArgs = nilm.Basics.compose [ nilm.String.concat (nilm.List.intersperse ",") (nilm.List.map toLua) ];
