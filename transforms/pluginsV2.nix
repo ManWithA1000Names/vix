@@ -54,25 +54,25 @@
   The method called after requiring in the plugin. With the either an empty map, the set given to config or the arguemtns given to config.
 */
 { pkgs, app-name, lua, nilm }:
-{ sources, less, plugins }:
+{ plugin-sources, plugin-setups, less, }:
 let
   inherit (nilm) Dict Nix List String;
   plugins = rec {
     # This set contains all the source code for each plugin being used.
     # <name> = <source>
-    sources = Dict.remove less sources;
+    sources = Dict.remove less plugin-sources;
 
     # These are the plugins which do not have any configuration metadata
     # and we are only given the source code.
-    raw = Dict.remove (Dict.keys configs) sources;
+    raw = Dict.remove (Dict.keys plugin-setups) sources;
 
     # These are the plugins which have the lazy field be a boolean.
     # Thus if the its 'true' then its lazy else its 'false' and not lazy.
-    maybe_lazy = Dict.filter (_: v: !(Dict.member "lazy" v) || Nix.isA "bool" v.lazy) plugins;
+    maybe_lazy = Dict.filter (_: v: !(Dict.member "lazy" v) || Nix.isA "bool" v.lazy) plugin-setups;
 
     # These are the plugins that will be dynamically loaded
     # based on a events and patterns.
-    lazy = Dict.filter (_: v: Dict.meber "lazy" v && Nix.isA "set" v.lazy) plugins;
+    lazy = Dict.filter (_: v: Dict.meber "lazy" v && Nix.isA "set" v.lazy) plugin-setups;
   };
 
   # Generate the code that sets up a plugin.
