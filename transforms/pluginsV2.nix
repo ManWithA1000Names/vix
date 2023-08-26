@@ -176,7 +176,7 @@ let
     '';
 in
 ''
-  ${compile_raw_plugins raw_plugins}
-  ${compile_non_event_plugin non_event_plugins}
-  ${compile_event_plugins event_lazy_plugins}
+  ${compile-raw-plugins raw_plugins}
+  ${compile-maybe-lazy-plugins non_event_plugins}
+  ${compile-lazy-plugins event_lazy_plugins}
 ''
