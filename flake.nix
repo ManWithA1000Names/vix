@@ -39,14 +39,13 @@
       { system, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
-        lua = import ./lib/lua.nix { inherit nilm; };
-        util = import ./lib/util.nix;
+        lua = import ./lib/lua.nix { inherit nilm pkgs; };
 
         transformed-neovim-config = import ./transforms/neovim-config.nix
           {
             inherit pkgs lua name nilm;
             which-key-in-plugins =
-              nilm.Dict.member "which-key" plugins || nilm.Dict.member "which-key" sources;
+              nilm.Dict.member "which-key" plugin-sources;
           }
           config;
 

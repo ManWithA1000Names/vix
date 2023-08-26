@@ -5,7 +5,7 @@
 
 /* -- PLUGIN SPEC
   type Plugin = {
-  setup : Bool | String | Set | [Any] = args,
+  setup : Bool | String | fn(pkgs): String | Set | [Any] = args,
   lua? : String = "",
   lazy? : Bool | { events : [String], pattern?: String | [String] } = false,
   urgent? : Bool = false,
