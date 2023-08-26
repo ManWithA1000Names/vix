@@ -137,6 +137,7 @@ let
             String.concat
           ]}
         end,
+        once = true,
       });
     '';
 
