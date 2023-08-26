@@ -1,6 +1,11 @@
 { pkgs, name, lua, nilm, which-key-in-plugins }:
-{ init ? "", set ? { }, globals ? { }, colorscheme ? "", keybinds ? { }
-, enable_vim_loader ? true }:
+{ init ? ""
+, set ? { }
+, globals ? { }
+, colorscheme ? ""
+, keybinds ? { }
+, enable_vim_loader ? true
+}:
 let
   inherit (nilm) Dict;
 
@@ -22,7 +27,7 @@ let
     if !(Dict.member-raw mode keybinds) then
       ""
     else if Dict.getOr "${mode}.useWhichKey" false keybinds
-    && which-key-in-plugins then
+      && which-key-in-plugins then
       ''
         whichkey.register(${
           lua.toLua (Dict.remove "useWhichKey" keybinds.${mode})
@@ -114,7 +119,8 @@ let
     ${produceKeybindings "terminal"}
     --}}
   '';
-in ''
+in
+''
   cp ${initFile} $out/${name}/init.lua
   mkdir -p $out/${name}/lua/${name}-generated-config/
   cp ${setFile} $out/${name}/lua/${name}-generated-config/set.lua

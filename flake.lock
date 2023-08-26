@@ -20,11 +20,11 @@
     },
     "nilm": {
       "locked": {
-        "lastModified": 1692711321,
-        "narHash": "sha256-NQYAz2DIM01Ecbd7ylF/BbcNdboZUUIluj83j2ydHLA=",
+        "lastModified": 1693067433,
+        "narHash": "sha256-6GSacu9qNGXxuusPC5YMLz1kA4mVSmshXU5hLuqbAYo=",
         "owner": "manwitha1000names",
         "repo": "nilm",
-        "rev": "68bd73000eb9417e48b3ee7d934ea3e56450af7d",
+        "rev": "92db2d29be5c4b20bb4846637d4902c24cce4ece",
         "type": "github"
       },
       "original": {

@@ -27,7 +27,8 @@
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation (args // { inherit system; });
-        in {
+        in
+        {
           packages = {
             ${theDerivation.name} = theDerivation;
             default = theDerivation;
@@ -35,10 +36,25 @@
         });
 
     mkDerivation =
-      { system, name ? "vix", config ? { }, plugins ? [ ], tools ? [ ] }:
+      { system, name ? "vix", config ? { }, plugins ? { }, sources ? { }, less ? [ ], tools ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
-        lua = import ./lib/lua.nix { inherit pkgs nilm; };
+        lua = import ./lib/lua.nix { inherit nilm; };
+        util = import ./lib/util.nix;
+
+        transformed-neovim-config = import ./transforms/neovim-config.nix
+          {
+            inherit pkgs lua name nilm;
+            which-key-in-plugins =
+              nilm.Dict.member "which-key" plugins || nilm.Dict.member "which-key" sources;
+          }
+          config;
+
+        transformed-plugins = import ./transforms/pluginsV2.nix { inherit pkgs lua nilm; app-name = name; }
+          { args = sources; configs = plugins; inherit less; };
+
+        transformed-tooling = import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
+          tools;
 
         complete_config = pkgs.runCommand "${name}-configuration" { } ''
           mkdir -p $out/${name}/lua/;
@@ -48,21 +64,16 @@
           mkdir -p $out/${name}/pack/${name}-plugins/opt/;
           echo "Beginning to generate the configurtion."
           echo "1/4 Created neccessary directories..." 
-          ${import ./transforms/neovim-config.nix {
-            inherit pkgs lua name nilm;
-            which-key-in-plugins =
-              nilm.List.any (p: p.name == "which-key") plugins;
-          } config}
+          ${transformed-neovim-config}
           echo "2/4 Created neovim config..." 
-          ${import ./transforms/plugins.nix { inherit pkgs lua name nilm; }
-          plugins}
+          ${transformed-plugins}
           echo "3/4 Created the plugins..." 
-          ${import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
-          tools}
+          ${transformed-tooling}
           echo "4/4 Created the tooling configurations..." 
           echo "Done generating the configurtion."
         '';
-      in pkgs.writeScriptBin name ''
+      in
+      pkgs.writeScriptBin name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";

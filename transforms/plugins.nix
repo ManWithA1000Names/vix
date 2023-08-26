@@ -1,6 +1,26 @@
 { pkgs, name, lua, nilm }:
 
+# TODO: change the style to give you the whole args thing.
+# then give you a list with name, which you look up in args.
+# then config = true false string, anything else gets passed into setup fn,set, number 
+#               \/    \/   \/         \/
+#              auto   no   inject     arg to auto
+# lazy = false, true or list of events. to load it. run :packadd ... thing
+# and config can then load it.
+# urgent -> place config in plugin/....lua  not_urgent -> place config in after/plugin/...;
+# setupfn = if it is not "setup" then specify.
+# 
+# if its lazy then config goes in the aucmd callback.
 let
+  example = {
+    name = "plenary";
+    lua = "print(\"wow\")";
+    config = false;
+    lazy = [ "BufWritePost" ];
+    urgent = true;
+    setupfn = "setup";
+  };
+
   compile_plugin_source = { src, dir ? "start" }: "cp -R ${src} $out/${name}/pack/${name}-plugins/${dir}/;";
 
   compile_plugin_config = app_name: { name, src, configure ? true, urgent ? false, opt ? false, setupFN ? "setup", config ? (lua.defaultPluginConfig { inherit name setupFN; config = { }; }) }:
