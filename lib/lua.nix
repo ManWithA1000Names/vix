@@ -24,7 +24,7 @@ let
         else if nilm.Nix.isA "set" value then
           nilm.Dict.insert key (removeRecursively toremove value) acc
         else
-          nilm.Dict.inset key value acc)
+          nilm.Dict.insert key value acc)
       { };
 
 in
