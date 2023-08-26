@@ -56,7 +56,7 @@
 { pkgs, app-name, lua, nilm }:
 { plugin-sources, plugin-setups, less, }:
 let
-  inherit (nilm) Dict Nix List String;
+  inherit (nilm) Dict Nix List String Tuple;
   plugins = rec {
     # This set contains all the source code for each plugin being used.
     # <name> = <source>
