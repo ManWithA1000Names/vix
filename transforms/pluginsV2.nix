@@ -126,15 +126,14 @@ let
       vim.api.nvim_create_autocmd(${lua.toLua lazy0.events}, {
         ${if Dict.member "pattern" lazy0 then "pattern = ${lua.toLua lazy0.pattern}," else ""}
         callback = function(event)
+          ${nilm.Basics.pipe set [Dict.map (name: args: "vim.cmd([[packadd ${name}]]);") Dict.values (String.join "\n")]}
           ${nilm.Basics.pipe set [(Dict.map (name: args: ''
-              (function()
-                vim.cmd([[packadd ${name}]]);
+              vim.schedule(function()
                 ${setup-code name args}
               end);
             ''))
             Dict.values
-            (List.intersperse "\n")
-            String.concat
+            (String.join "\n")
           ]}
         end,
         once = true,
