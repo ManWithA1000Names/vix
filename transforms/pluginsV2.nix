@@ -80,7 +80,8 @@ let
     if Nix.isA "string" setup then
       "${lua.toValidLuaInsert lua}\n${setup}"
     else
-      lua.defaultPluginSetup { inherit name setup setupfn lua; };
+      builtins.abort "this is it: '${nilm.String.toString setup}'";
+  # lua.defaultPluginSetup { inherit name setup setupfn lua; };
 
   # Create the file that hols the setup-code of a plugin.
   # And the return the shell command to place it in the right place.
