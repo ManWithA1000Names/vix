@@ -135,25 +135,27 @@ let
   # and runs their setup code.  All of the plugins in the set have the same events and pattern,
   # so they can be grouped up into one autocmd callback.
   compile-lazy-plugin-set = set:
-    assert builtins.typeOf set == "set";
-    let lazy0 = ((Tuple.second (List.get 0 (Dict.toList set)))).lazy; in
-    ''
-      vim.api.nvim_create_autocmd(${lua.toLua lazy0.events}, {
-        ${if Dict.member "pattern" lazy0 then "pattern = ${lua.toLua lazy0.pattern}," else ""}
-        callback = function(event)
-          ${nilm.Basics.pipe set [Dict.map (name: args: "vim.cmd([[packadd ${name}]]);") Dict.values (String.join "\n")]}
-          ${nilm.Basics.pipe set [(Dict.map (name: args: ''
-              vim.schedule(function()
-                ${assert nilm.Nix.isA "set" args; setup-code name args}
-              end);
-            ''))
-            Dict.values
-            (String.join "\n")
-          ]}
-        end,
-        once = true,
-      });
-    '';
+    if builtins.typeOf set != "set" then
+      builtins.abort "COMPILE-LAZY-PLUGIN-SET SET IS NOT A SET: '${nilm.String.toString set}'"
+    else
+      let lazy0 = ((Tuple.second (List.get 0 (Dict.toList set)))).lazy; in
+      ''
+        vim.api.nvim_create_autocmd(${lua.toLua lazy0.events}, {
+          ${if Dict.member "pattern" lazy0 then "pattern = ${lua.toLua lazy0.pattern}," else ""}
+          callback = function(event)
+            ${nilm.Basics.pipe set [Dict.map (name: args: "vim.cmd([[packadd ${name}]]);") Dict.values (String.join "\n")]}
+            ${nilm.Basics.pipe set [(Dict.map (name: args: ''
+                vim.schedule(function()
+                  ${assert nilm.Nix.isA "set" args; setup-code name args}
+                end);
+              ''))
+              Dict.values
+              (String.join "\n")
+            ]}
+          end,
+          once = true,
+        });
+      '';
 
   group-lazy-plugins = name: plugin: acc:
     let
