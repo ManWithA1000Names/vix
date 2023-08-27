@@ -72,7 +72,7 @@ let
 
     # These are the plugins that will be dynamically loaded
     # based on a events and patterns.
-    lazy = Dict.filter (_: v: Dict.meber "lazy" v && Nix.isA "set" v.lazy) plugin-setups;
+    lazy = Dict.filter (_: v: Dict.member "lazy" v && Nix.isA "set" v.lazy) plugin-setups;
   };
 
   # Generate the code that sets up a plugin.
