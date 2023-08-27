@@ -97,7 +97,7 @@ rec {
       end
       if plugin.${setupfn} ~= nil then
         -- INJECTED CODE
-        ${assert nilm.Nix.isA "string" lua; toValidLuaInsert lua}
+        ${if nilm.String.isEmpty lua then "-- no code to inject was provided." else toValidLuaInsert lua}
         local arg = ${arg};
         local ok = pcall(plugin.${setupfn}, arg)
         if not ok then
@@ -108,12 +108,20 @@ rec {
       end
     '';
 
-  toKeybindings = mode: bindings:
-    toValidLuaInsert (nilm.Dict.foldl
-      (key: value: acc:
-        acc + ''
-          vim.keymap.set("${mode}", "${key}", ${
-            resolveCmd key value
-          }, {noremap = true, silent = true});'') ""
-      (nilm.Dict.flatten (removeRecursively "name" bindings)));
+  # toKeybindings = mode: bindings:
+  #   toValidLuaInsert (nilm.Dict.foldl
+  #     (key: value: acc:
+  #       acc + ''
+  #         vim.keymap.set("${mode}", "${key}", ${
+  #           resolveCmd key value
+  #         }, {noremap = true, silent = true});'') ""
+  #     (nilm.Dict.flatten (removeRecursively "name" bindings)));
+
+  toKeybindings = mode:
+    nilm.Basics.compose [
+      (String.join "\n")
+      (nilm.Dict.map (key: value: ''vim.keymap.set("${mode}", "${key}", ${resolveCmd key value}, {noremap = true, silent = true});''))
+      nilm.Dict.flatten
+      (removeRecursively "name")
+    ];
 }
