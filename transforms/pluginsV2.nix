@@ -79,6 +79,8 @@ let
   setup-code = name: plugin:
     if builtins.typeOf plugin != "set" then
       builtins.abort "PLUGIN IS NOT A SET: '${nilm.String.toString plugin}'"
+    else if !(Dict.member "setup" plugin) then
+      builtins.abort "PLUGIN DOES NOT HAVE THE SETUP ATTRIBUTE FIELD: '${nilm.String.toString plugin}'"
     else if Nix.isA "string" (plugin.setup) then
       "${lua.toValidLuaInsert (nilm.Dict.getOr "lua" "" plugin)}\n${plugin.setup}"
     else
