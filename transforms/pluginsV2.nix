@@ -90,7 +90,10 @@ let
   setup-file = name: plugin:
     assert builtins.typeOf plugin == "set";
     assert builtins.typeOf name == "string";
-    "cp ${pkgs.writeText "${name}.lua" (setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
+    if nilm.Nix.isA "string" plugin then
+      builtins.abort "PLUGIN IS A STRING: '${nilm.String.toString plugin}'"
+    else
+      "cp ${pkgs.writeText "${name}.lua" (setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
 
   # Generate the appropriate shell command to place the source code of a plugin in the correct place.
   copy-source = { src, name ? "", opt ? false }:
