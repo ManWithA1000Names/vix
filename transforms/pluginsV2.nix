@@ -135,6 +135,7 @@ let
   # and runs their setup code.  All of the plugins in the set have the same events and pattern,
   # so they can be grouped up into one autocmd callback.
   compile-lazy-plugin-set = set:
+    assert builtins.typeOf set == "set";
     let lazy0 = ((Tuple.second (List.get 0 (Dict.toList set)))).lazy; in
     ''
       vim.api.nvim_create_autocmd(${lua.toLua lazy0.events}, {
