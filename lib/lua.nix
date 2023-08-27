@@ -85,7 +85,7 @@ rec {
           toArgs setup
         else if nilm.Nix.isA "set" setup then
           toLua setup
-        else if nilm.Nis.isA "lambda" setup then
+        else if nilm.Nix.isA "lambda" setup then
           toLua (setup pkgs)
         else builtins.abort "defaultPluginSetup received a 'setup' value that is not one of: bool, list, set, lambda.";
     in
