@@ -76,14 +76,18 @@ let
   };
 
   # Generate the code that sets up a plugin.
-  setup-code = name: { setup, setupfn ? "setup", lua ? "", ... }:
-    if Nix.isA "string" setup then
+  setup-code = name: plugin:
+    if builtins.typeOf plugin == "string" then
+      builtins.abort "PLUGIN IS A STRING: '${nilm.String.toString plugin}'"
+    else if Nix.isA "string" setup then
       "${lua.toValidLuaInsert lua}\n${setup}"
     else
-      if name == "bufferlin" then
-        builtins.abort "Passing this to defaultPluginSetup: '${nilm.String.toString { inherit name setup setupfn lua; }}'"
-      else
-        lua.defaultPluginSetup { inherit name setup setupfn lua; };
+      lua.defaultPluginSetup {
+        inherit name;
+        setup = plugin.setup;
+        setupfn = nilm.Dict.getOr "setupfn" "setup" plugin;
+        lua = nilm.Dict.getOr "lua" "" plugin;
+      };
 
   # Create the file that hols the setup-code of a plugin.
   # And the return the shell command to place it in the right place.
