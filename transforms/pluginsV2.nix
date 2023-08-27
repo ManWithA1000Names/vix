@@ -78,9 +78,9 @@ let
   # Generate the code that sets up a plugin.
   setup-code = name: plugin:
     if builtins.typeOf plugin != "set" then
-      builtins.abort "PLUGIN IS NOT A SET: '${nilm.String.toString plugin}'"
+      builtins.abort "PLUGIN IS NOT A SET: '${String.toString plugin}'"
     else if !(Dict.member "setup" plugin) then
-      builtins.abort "PLUGIN DOES NOT HAVE THE SETUP ATTRIBUTE FIELD: '${nilm.String.toString plugin}'"
+      builtins.abort "PLUGIN DOES NOT HAVE THE SETUP ATTRIBUTE FIELD: '${String.toString plugin}'"
     else if Nix.isA "string" (plugin.setup) then
       "${lua.toValidLuaInsert (nilm.Dict.getOr "lua" "" plugin)}\n${plugin.setup}"
     else
@@ -97,7 +97,7 @@ let
     assert builtins.typeOf plugin == "set";
     assert builtins.typeOf name == "string";
     if nilm.Nix.isA "string" plugin then
-      builtins.abort "PLUGIN IS A STRING: '${nilm.String.toString plugin}'"
+      builtins.abort "PLUGIN IS A STRING: '${String.toString plugin}'"
     else
       "cp ${pkgs.writeText "${name}.lua" (setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
 
@@ -137,7 +137,7 @@ let
   # so they can be grouped up into one autocmd callback.
   compile-lazy-plugin-set = set:
     if builtins.typeOf set != "set" then
-      builtins.abort "COMPILE-LAZY-PLUGIN-SET SET IS NOT A SET: '${nilm.String.toString set}'"
+      builtins.abort "COMPILE-LAZY-PLUGIN-SET SET IS NOT A SET: '${String.toString set}'"
     else
       let lazy0 = ((Tuple.second (List.get 0 (Dict.toList set)))).lazy; in
       ''
@@ -181,8 +181,7 @@ let
           (Dict.foldl group-lazy-plugins { })
           (Dict.map (_: set: compile-lazy-plugin-set set))
           Dict.values
-          (List.intersperse "\n")
-          String.concat
+          (String.join "\n")
           (pkgs.writeText "lazy-plugins.lua")
         ];
 
