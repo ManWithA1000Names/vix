@@ -77,9 +77,9 @@ let
 
   # Generate the code that sets up a plugin.
   setup-code = name: plugin:
-    if builtins.typeOf plugin == "string" then
-      builtins.abort "PLUGIN IS A STRING: '${nilm.String.toString plugin}'"
-    else if Nix.isA "string" setup then
+    if builtins.typeOf plugin != "set" then
+      builtins.abort "PLUGIN IS NOT A SET: '${nilm.String.toString plugin}'"
+    else if Nix.isA "string" (plugin.setup) then
       "${lua.toValidLuaInsert lua}\n${setup}"
     else
       lua.defaultPluginSetup {
