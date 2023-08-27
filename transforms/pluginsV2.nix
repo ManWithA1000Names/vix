@@ -186,7 +186,7 @@ let
           (pkgs.writeText "lazy-plugins.lua")
         ];
 
-      copy-source-cmds = compile-plugins-generic (name: plugin: copy-source { src = Dict.get name plugins.sources; opt = true;  inherit name; });
+      copy-source-cmds = compile-plugins-generic (name: plugin: copy-source { src = Dict.get name plugins.sources; opt = true;  inherit name; }) plugins.lazy;
     in
     ''
       cp ${events-file} $out/${app-name}/after/plugin/;
