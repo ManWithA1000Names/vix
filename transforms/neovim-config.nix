@@ -62,10 +62,7 @@ let
     ${if nilm.String.isEmpty init then "-- there was not custom init code."  else lua.toValidLuaInsert init}
 
     ${nilm.Nix.orDefault (colorscheme != "")
-    ''-- COLORSCHEME
-    vim.cmd([[packadd ${colorscheme}]])
-    vim.cmd([[colorscheme ${colorscheme}]])
-    ''}
+    "-- COLORSCHEME\nvim.cmd([[colorscheme ${colorscheme}]])"}
 
     -- CALL GENREATED OPTIONS && GLOBALS
     require("${name}-generated-config.globals")
