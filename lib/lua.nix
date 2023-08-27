@@ -97,7 +97,7 @@ rec {
       end
       if plugin.${setupfn} ~= nil then
         -- INJECTED CODE
-        ${toValidLuaInsert lua}
+        ${assert nilm.Nix.isA "string" lua; toValidLuaInsert lua}
         local arg = ${arg};
         local ok = pcall(plugin.${setupfn}, arg)
         if not ok then
