@@ -88,7 +88,9 @@ let
   # Create the file that hols the setup-code of a plugin.
   # And the return the shell command to place it in the right place.
   setup-file = name: plugin:
-    "cp ${pkgs.writeText "${name}.lua" (assert nilm.Nix.isA "set" plugin; setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
+    assert builtins.typeOf plugin == "set";
+    assert builtins.typeOf name == "string";
+    "cp ${pkgs.writeText "${name}.lua" (setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
 
   # Generate the appropriate shell command to place the source code of a plugin in the correct place.
   copy-source = { src, name ? "", opt ? false }:
@@ -97,13 +99,15 @@ let
 
   # Generate the appropriate shell command to 'install' a maybe-lazy-plugin.
   compile-maybe-lazy-plugin = name: plugin:
+    assert builtins.typeOf plugin == "set";
+    assert builtins.typeOf name == "string";
     let
       copy-src-cmd = copy-source { src = (Dict.get name plugins.sources); opt = (Dict.getOr "lazy" false plugin); inherit name; };
     in
     if Nix.isA "bool" plugin.setup && !plugin.setup then
       copy-src-cmd
     else
-      (assert nilm.Nix.isA "set" plugin; setup-file name plugin) + copy-src-cmd;
+      setup-file name plugin + copy-src-cmd;
 
 
   # A generic function that that join the compilation of many plugins into one string.
