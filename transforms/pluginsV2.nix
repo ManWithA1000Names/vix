@@ -80,7 +80,7 @@ let
     if Nix.isA "string" setup then
       "${lua.toValidLuaInsert lua}\n${setup}"
     else
-      if name == "bufferline" then
+      if name == "bufferlin" then
         builtins.abort "Passing this to defaultPluginSetup: '${nilm.String.toString { inherit name setup setupfn lua; }}'"
       else
         lua.defaultPluginSetup { inherit name setup setupfn lua; };
