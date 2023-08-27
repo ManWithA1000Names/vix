@@ -174,7 +174,7 @@ let
     in
     Dict.upsert key (value: Dict.insert name plugin value) { ${name} = plugin; } acc;
 
-  compile-lazy-plugins =
+  compiled-lazy-plugins =
     let
       events-file =
         nilm.Basics.pipe plugins.lazy [
@@ -196,5 +196,5 @@ in
 ''
   ${compile-raw-plugins plugins.raw}
   ${compile-maybe-lazy-plugins plugins.maybe_lazy}
-  ${compile-lazy-plugins plugins.lazy}
+  ${compiled-lazy-plugins}
 ''
