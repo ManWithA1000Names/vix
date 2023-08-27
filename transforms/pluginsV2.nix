@@ -85,7 +85,7 @@ let
   # Create the file that hols the setup-code of a plugin.
   # And the return the shell command to place it in the right place.
   setup-file = name: plugin:
-    "cp ${pkgs.writeText "${name}.lua" (setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
+    "cp ${pkgs.writeText "${name}.lua" (assert nilm.Nix.isA "set" plugin; setup-code name plugin)} $out/${app-name}/${Nix.orDefault (!(Dict.getOr "urgent" false plugin)) "after/"}plugin/;\n";
 
   # Generate the appropriate shell command to place the source code of a plugin in the correct place.
   copy-source = { src, name ? "", opt ? false }:
@@ -100,7 +100,7 @@ let
     if Nix.isA "bool" plugin.setup && !plugin.setup then
       copy-src-cmd
     else
-      (setup-file name plugin) + copy-src-cmd;
+      (assert nilm.Nix.isA "set" plugin; setup-file name plugin) + copy-src-cmd;
 
 
   # A generic function that that join the compilation of many plugins into one string.
@@ -129,7 +129,7 @@ let
           ${nilm.Basics.pipe set [Dict.map (name: args: "vim.cmd([[packadd ${name}]]);") Dict.values (String.join "\n")]}
           ${nilm.Basics.pipe set [(Dict.map (name: args: ''
               vim.schedule(function()
-                ${setup-code name args}
+                ${assert nilm.Nix.isA "set" args; setup-code name args}
               end);
             ''))
             Dict.values

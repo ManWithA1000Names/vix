@@ -74,7 +74,7 @@ rec {
     else trimmed + nilm.Nix.orDefault (! nilm.String.endsWith ";" trimmed) ";" + "\n";
 
   # convert a list into valid format to be used as arguments to a lua function.
-  toArgs = nilm.Basics.compose [ nilm.String.concat (nilm.List.intersperse ",") (nilm.List.map toLua) ];
+  toArgs = nilm.Basics.compose [ (nilm.String.join ",") (nilm.List.map toLua) ];
 
   defaultPluginSetup = { name, lua ? "", setup ? { }, setupfn ? "setup" }:
     let
@@ -87,7 +87,7 @@ rec {
           toLua setup
         else if nilm.Nis.isA "lambda" setup then
           toLua (setup pkgs)
-        else builtins.abort "defaultPluginSetup received a 'setup' value that is not one of: bool, list, set.";
+        else builtins.abort "defaultPluginSetup received a 'setup' value that is not one of: bool, list, set, lambda.";
     in
     ''
       local require_ok, plugin = pcall(require,"${name}");
