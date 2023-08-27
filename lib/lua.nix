@@ -120,6 +120,7 @@ rec {
   toKeybindings = mode:
     nilm.Basics.compose [
       (nilm.String.join "\n")
+      nilm.Dict.values
       (nilm.Dict.map (key: value: ''vim.keymap.set("${mode}", "${key}", ${resolveCmd key value}, {noremap = true, silent = true});''))
       nilm.Dict.flatten
       (removeRecursively "name")
