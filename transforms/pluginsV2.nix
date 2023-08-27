@@ -119,8 +119,7 @@ let
 
   # A generic function that that join the compilation of many plugins into one string.
   compile-plugins-generic = mapfn: nilm.Basics.compose [
-    String.concat
-    (List.intersperse "\n")
+    (String.join "\n")
     Dict.values
     (Dict.map mapfn)
   ];
@@ -143,7 +142,7 @@ let
         vim.api.nvim_create_autocmd(${lua.toLua lazy0.events}, {
           ${if Dict.member "pattern" lazy0 then "pattern = ${lua.toLua lazy0.pattern}," else ""}
           callback = function(event)
-            ${nilm.Basics.pipe set [Dict.map (name: args: "vim.cmd([[packadd ${name}]]);") Dict.values (String.join "\n")]}
+            ${nilm.Basics.pipe set [(Dict.map (name: args: "vim.cmd([[packadd ${name}]]);")) Dict.values (String.join "\n")]}
             ${nilm.Basics.pipe set [(Dict.map (name: args: ''
                 vim.schedule(function()
                   ${assert nilm.Nix.isA "set" args; setup-code name args}
