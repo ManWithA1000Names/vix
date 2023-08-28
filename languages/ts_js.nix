@@ -23,9 +23,10 @@ pkgs: [
     };
   }
   {
-    type = "diagnostics";
-    pkg = pkgs.nodePackages.eslint;
-    exe = "eslint";
+    type = "language-server";
+    pkg = pkgs.nodePackages.vscode-langservers-extracted;
+    name = "eslint";
+    exe = "vscode-eslint-language-server";
   }
   {
     type = "formatting";
