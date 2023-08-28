@@ -145,7 +145,7 @@ let
           ${if Dict.member "pattern" lazy0 then "pattern = ${lua.toLua lazy0.pattern}," else ""}
           callback = function(event)
             ${nilm.Basics.pipe set [(Dict.map (name: args: "vim.cmd([[packadd ${name}]]);")) Dict.values (String.join "\n")]}
-            ${nilm.Basics.pipe set [(Dict.map (name: args: ''
+            ${nilm.Basics.pipe set [(Dict.map (name: args: if nilm.Nix.isA "bool" args.setup && !args.setup then "" else ''
                 vim.schedule(function()
                   ${assert nilm.Nix.isA "set" args; setup-code name args}
                 end);
