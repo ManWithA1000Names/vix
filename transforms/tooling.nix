@@ -91,15 +91,10 @@ let
               print([[lspconfig did not recognize a language server named: '${name}']])
               return
           end
-          ${
-            if Dict.member "options" tool then ''
-              local opts = ${lua.toLua ({
-                on_attach = on_ls_attach;
-                cmd = _: ''vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)'';
-              } // tool.options)};
-            '' else
-            ''local opts = {cmd = vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)};''
-          }
+          local opts = ${lua.toLua ({
+            on_attach = on_ls_attach;
+            cmd = _: ''vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)'';
+          } // Dict.getOr "options" {} tool)};
           server.setup(opts)
         end)(); 
       --}}
