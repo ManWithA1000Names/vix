@@ -1,4 +1,4 @@
-{ name, lua, pkgs, nilm }:
+{ name, lua, pkgs, nilm, on_ls_attach }:
 tool_fns:
 let
   inherit (nilm) List Dict;
@@ -24,6 +24,7 @@ let
     else
       builtins.abort
       "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
+
   getExe = tool:
     if Dict.member "exe" tool then
       "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
@@ -69,7 +70,7 @@ let
     tools;
   null-ls-tools = List.filter (tool: tool.type != "language-server") tools;
 
-  configure-language-server = { type, pkg, ... }@tool:
+  configure-language-server = { type, pkg, options ? {}, ... }@tool:
     let
       name = getName tool;
       exe-path = getExe tool;
@@ -92,13 +93,12 @@ let
           end
           ${
             if Dict.member "options" tool then ''
-              local opts = ${lua.toLua tool.options};
-                                if opts.cmd == nil then
-                                  opts.cmd = vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)
-                                end
+              local opts = ${lua.toLua ({
+                on_attach = on_ls_attach;
+                cmd = _: ''vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)'';
+              } // tool.options)};
             '' else
-              ''
-                local opts = {cmd = vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)};''
+            ''local opts = {cmd = vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)};''
           }
           server.setup(opts)
         end)(); 

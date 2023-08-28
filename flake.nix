@@ -36,7 +36,7 @@
         });
 
     mkDerivation =
-      { system, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
+      { system, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ], on_ls_attach ? null }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
@@ -52,7 +52,7 @@
         transformed-plugins = import ./transforms/pluginsV2.nix { inherit pkgs lua nilm; app-name = name; }
           { inherit plugin-setups plugin-sources less; };
 
-        transformed-tooling = import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
+        transformed-tooling = import ./transforms/tooling.nix { inherit pkgs lua name nilm on_ls_attach; }
           tools;
 
         complete_config = pkgs.runCommand "${name}-configuration" { } ''
