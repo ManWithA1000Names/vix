@@ -1,20 +1,5 @@
 { nilm, pkgs }:
 let
-  resolveCmd = key: value:
-    if nilm.Nix.isA "tuple" value then
-      nilm.String.toString (nilm.Tuple.first value)
-    else if nilm.Nix.isA "list" value then
-      if nilm.List.length value == 0 then
-        builtins.abort "Found keymapping (${key}) to a list of length 0!"
-      else
-        nilm.String.toString (nilm.List.get 0 value)
-    else if nilm.Nix.isA "string" value then
-      nilm.String.toString value
-    else if nilm.Nix.isA "lambda" value then
-      let res = value null; in assert nilm.Nix.isA "string" res; res
-    else
-      builtins.abort
-        "Found keymapping (${key}) to a value that is not either a: string, list, tuple or lambda.";
 
   removeRecursively = toremove:
     nilm.Dict.foldl
@@ -27,8 +12,6 @@ let
           nilm.Dict.insert key value acc)
       { };
 
-in
-rec {
   toLuaTableKey = arg:
     if nilm.String.startsWith "[" arg && nilm.String.endsWith "]" arg then
       arg
@@ -66,6 +49,25 @@ rec {
       "nil"
     else
       nilm.String.toString arg;
+
+  resolveCmd = key: value:
+    if nilm.Nix.isA "tuple" value then
+      toLua (nilm.Tuple.first value)
+    else if nilm.Nix.isA "list" value then
+      if nilm.List.length value == 0 then
+        builtins.abort "Found keymapping (${key}) to a list of length 0!"
+      else
+        toLua (nilm.List.get 0 value)
+    else if nilm.Nix.isA "string" value then
+      toLua value
+    else if nilm.Nix.isA "lambda" value then
+      let res = value null; in assert nilm.Nix.isA "string" res; res
+    else
+      builtins.abort
+        "Found keymapping (${key}) to a value that is not either a: string, list, tuple or lambda.";
+in
+rec {
+  inherit toLua;
 
   # make sure the given string ends with a plain ";\n" or is an empty string ("")
   toValidLuaInsert = str:
@@ -108,20 +110,11 @@ rec {
       end
     '';
 
-  # toKeybindings = mode: bindings:
-  #   toValidLuaInsert (nilm.Dict.foldl
-  #     (key: value: acc:
-  #       acc + ''
-  #         vim.keymap.set("${mode}", "${key}", ${
-  #           resolveCmd key value
-  #         }, {noremap = true, silent = true});'') ""
-  #     (nilm.Dict.flatten (removeRecursively "name" bindings)));
-
   toKeybindings = mode:
     nilm.Basics.compose [
       (nilm.String.join "\n")
       nilm.Dict.values
-      (nilm.Dict.map (key: value: ''vim.keymap.set("${mode}", "${key}", ${resolveCmd key value}, {noremap = true, silent = true});''))
+      (nilm.Dict.map (key: value: ''vim.keymap.set([[${mode}]], [[${key}]], ${resolveCmd key value}, {noremap = true, silent = true});''))
       nilm.Dict.flatten
       (removeRecursively "name")
     ];

@@ -126,5 +126,5 @@ in
   mkdir -p $out/${name}/lua/${name}-generated-config/
   cp ${setFile} $out/${name}/lua/${name}-generated-config/set.lua
   cp ${globalsFile} $out/${name}/lua/${name}-generated-config/globals.lua
-  cp ${keybindindsFile} $out/${name}/after/plugin/keybinds.lua
+  cp ${keybindindsFile} $out/${name}/after/plugin/;
 ''
