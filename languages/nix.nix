@@ -7,7 +7,11 @@ pkgs: [
     options = {
       settings = {
         nil = {
-          autoArchive = true;
+          nix = {
+            flake = {
+              autoArchive = true;
+            };
+          };
         };
       };
     };
