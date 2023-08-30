@@ -39,6 +39,8 @@
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
+        tooling = nilm.List.flatten (nilm.List.map (nilm.Basics."<|" pkgs) tools);
+        tooling_pkgs = nilm.List.map (Dict.get "pkg") tooling;
 
         transformed-neovim-config = import ./transforms/neovim-config.nix
           {
@@ -52,24 +54,45 @@
           { inherit plugin-setups plugin-sources less; };
 
         transformed-tooling = import ./transforms/tooling.nix { inherit pkgs lua name nilm on_ls_attach; }
-          tools;
+          tooling;
 
-        complete_config = pkgs.runCommand "${name}-configuration" { } ''
-          mkdir -p $out/${name}/lua/;
-          mkdir -p $out/${name}/plugin/;
-          mkdir -p $out/${name}/after/plugin/;
-          mkdir -p $out/${name}/pack/${name}-plugins/start/;
-          mkdir -p $out/${name}/pack/${name}-plugins/opt/;
-          echo "Beginning to generate the configurtion."
-          echo "1/4 Created neccessary directories..." 
-          ${transformed-neovim-config}
-          echo "2/4 Created neovim config..." 
-          ${transformed-plugins}
-          echo "3/4 Created the plugins..." 
-          ${transformed-tooling}
-          echo "4/4 Created the tooling configurations..." 
-          echo "Done generating the configurtion."
-        '';
+        # complete_config = pkgs.runCommand "${name}-configuration" { } ''
+        #   mkdir -p $out/${name}/lua/;
+        #   mkdir -p $out/${name}/plugin/;
+        #   mkdir -p $out/${name}/after/plugin/;
+        #   mkdir -p $out/${name}/pack/${name}-plugins/start/;
+        #   mkdir -p $out/${name}/pack/${name}-plugins/opt/;
+        #   echo "Beginning to generate the configurtion."
+        #   echo "1/4 Created neccessary directories..." 
+        #   ${transformed-neovim-config}
+        #   echo "2/4 Created neovim config..." 
+        #   ${transformed-plugins}
+        #   echo "3/4 Created the plugins..." 
+        #   ${transformed-tooling}
+        #   echo "4/4 Created the tooling configurations..." 
+        #   echo "Done generating the configurtion."
+        # '';
+
+        complete_config = pkgs.stdenv.mkDerivation {
+          name = "${name}-configuration";
+          buildInputs = tooling_pkgs;
+          installPhase = ''
+            mkdir -p $out/${name}/lua/;
+            mkdir -p $out/${name}/plugin/;
+            mkdir -p $out/${name}/after/plugin/;
+            mkdir -p $out/${name}/pack/${name}-plugins/start/;
+            mkdir -p $out/${name}/pack/${name}-plugins/opt/;
+            echo "Beginning to generate the configurtion."
+            echo "1/4 Created neccessary directories..." 
+            ${transformed-neovim-config}
+            echo "2/4 Created neovim config..." 
+            ${transformed-plugins}
+            echo "3/4 Created the plugins..." 
+            ${transformed-tooling}
+            echo "4/4 Created the tooling configurations..." 
+            echo "Done generating the configurtion."
+          '';
+        };
       in
       pkgs.writeScriptBin name ''
         #!/bin/sh
