@@ -39,8 +39,8 @@
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
-        tooling = nilm.List.flatten (nilm.List.map (nilm.Basics."<|" pkgs) tools);
-        tooling_pkgs = nilm.List.map (Dict.get "pkg") tooling;
+        tooling = nilm.List.flatten (nilm.List.map (nilm.Basics."|>" pkgs) tools);
+        tooling_pkgs = nilm.List.map (nilm.Dict.get "pkg") tooling;
 
         transformed-neovim-config = import ./transforms/neovim-config.nix
           {
