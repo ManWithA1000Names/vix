@@ -1,5 +1,5 @@
 { name, lua, pkgs, nilm, on_ls_attach }:
-tool_fns:
+applied_tools:
 let
   inherit (nilm) List Dict;
   # example = {
@@ -30,11 +30,6 @@ let
       "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
     else
       pkgs.lib.getExe tool.pkg;
-
-  applied_tools = List.foldl (tool_fn: acc:
-    let res = tool_fn pkgs;
-    in if nilm.Nix.isA "list" res then res ++ acc else List.cons res acc) [ ]
-    tool_fns;
 
   merged_tools_set = List.foldl (tool: acc:
     let name = getName tool;
