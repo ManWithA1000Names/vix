@@ -73,7 +73,6 @@ let
   configure-language-server = { type, pkg, options ? {}, ... }@tool:
     let
       name = getName tool;
-      exe-path = getExe tool;
     in if Dict.member "manual-setup" tool then ''
       local lspconfig_ok, lspconfig = pcall(require,"lspconfig")
       if not ok then return end
@@ -93,7 +92,7 @@ let
           end
           local opts = ${lua.toLua ({
             on_attach = on_ls_attach;
-            cmd = _: ''vim.tbl_extend("keep",{"${exe-path}"},server.document_config.default_config.cmd)'';
+            cmd = _: ''vim.tbl_extend("keep",{"${getExe tool}"},server.document_config.default_config.cmd)'';
           } // Dict.getOr "options" {} tool)};
           server.setup(opts)
         end)(); 
@@ -103,7 +102,6 @@ let
   configure-null-ls = { type, pkg, ... }@tool:
     let
       name = getName tool;
-      exe-path = getExe tool;
     in if Dict.member "manual-setup" tool then ''
       local null_ls_ok, null_ls = pcall(require, "null-ls")
       if not null_ls_ok then
@@ -121,15 +119,9 @@ let
           print([[null-ls did not recognize a ${type} tool named: '${name}']])
           return
         end
-        ${
-          if Dict.member "options" tool then ''
-            local opts = ${lua.toLua tool.options};
-            if opts.command == nil then   
-              opts.command = "${exe-path}";
-            end
-          '' else
-            ''local opts = {command = "${exe-path}"}''
-        }
+        local opts = ${lua.toLua ({
+          command = getExe tool;
+        } // Dict.getOr "options" {} tool)}
         table.insert(null_ls_sources, source.with(opts))
       end)();
       --}}

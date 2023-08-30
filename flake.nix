@@ -3,11 +3,10 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     nilm.url = "github:manwitha1000names/nilm";
   };
 
-  outputs = { self, nixpkgs, flake-utils, nilm }: {
+  outputs = { self, flake-utils, nilm, ... }: {
     tool_presets_per_language = {
       nix = import ./languages/nix.nix;
       "c/cpp" = import ./languages/c_cpp.nix;
@@ -36,7 +35,7 @@
         });
 
     mkDerivation =
-      { system, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ], on_ls_attach ? null }:
+      { system, nixpkgs, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ], on_ls_attach ? null }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
