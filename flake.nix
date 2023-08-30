@@ -75,6 +75,7 @@
 
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${name}-configuration";
+          src = ./.;
           buildInputs = tooling_pkgs;
           installPhase = ''
             mkdir -p $out/${name}/lua/;
