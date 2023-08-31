@@ -4,6 +4,17 @@
 let
   inherit (nilm) Dict;
 
+  getToolName = tool:
+    if Dict.member "name" tool then
+      tool.name
+    else if Dict.member "exe" tool then
+      tool.exe
+    else if Dict.member "pkg" tool then
+      pkgs.lib.getName tool.pkg
+    else
+      builtins.abort
+      "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
+
   keybindsWithFormatKey = if Dict.member-rec "normal.formatKey" keybinds then
     Dict.remove-rec "normal.formatKey"
     (Dict.insert-rec "normal.${keybinds.normal.formatKey}" ''
@@ -13,7 +24,7 @@ let
             lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
               (nilm.List.map (tool:
                 if Dict.getOr "disable_ls_formatting" false tool then
-                  tool.name
+                  getToolName tool
                 else
                   "") tooling))
           }) do
