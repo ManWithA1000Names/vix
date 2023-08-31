@@ -1,6 +1,12 @@
 { pkgs, name, lua, nilm, tooling, which-key-in-plugins }:
-{ init ? "", set ? { }, globals ? { }, colorscheme ? "", keybinds ? { }
-, enable_vim_loader ? true, ftkeybinds ? [ ] }:
+{ init ? ""
+, set ? { }
+, globals ? { }
+, colorscheme ? ""
+, keybinds ? { }
+, enable_vim_loader ? true
+, ftkeybinds ? [ ]
+}:
 let
   inherit (nilm) Dict;
 
@@ -13,38 +19,41 @@ let
       pkgs.lib.getName tool.pkg
     else
       builtins.abort
-      "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
+        "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
 
-  keybindsWithFormatKey = if Dict.member-rec "normal.formatKey" keybinds then
-    Dict.remove-rec "normal.formatKey"
-    (Dict.insert-rec "normal.${keybinds.normal.formatKey}" ''
-      vim.lsp.buf.format({
-        filter = function(client)
-          for _, name in ipairs(${
-            lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
-              (nilm.List.map (tool:
-                if Dict.getOr "disable_ls_formatting" false tool then
-                  getToolName tool
-                else
-                  "") tooling))
-          }) do
-            if client.name == name then
-              return false
-            else 
-              return true;
-            end
-          end
-        end;
-      })'' keybinds)
-  else
-    keybinds;
+  keybindsWithFormatKey =
+    if Dict.member-rec "normal.formatKey" keybinds then
+      Dict.remove-rec "normal.formatKey"
+        (Dict.insert-rec "normal.${keybinds.normal.formatKey}"
+          (_: ''
+            vim.lsp.buf.format({
+              filter = function(client)
+                for _, name in ipairs(${
+                  lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
+                    (nilm.List.map (tool:
+                      if Dict.getOr "disable_ls_formatting" false tool then
+                        getToolName tool
+                      else
+                        "") tooling))
+                }) do
+                  if client.name == name then
+                    return false
+                  else 
+                    return true;
+                  end
+                end
+              end
+            })'')
+          keybinds)
+    else
+      keybinds;
 
   ftkeybinds_grouped = nilm.List.groupBy (attrs: attrs.filetypes) ftkeybinds;
 
   shouldRequireWhichKey = keybinds:
     nilm.List.foldl
-    (m: acc: acc || Dict.getOr-rec "${m}.useWhichKey" false keybinds)
-    false [ "normal" "insert" "visual" "command" "terminal" ];
+      (m: acc: acc || Dict.getOr-rec "${m}.useWhichKey" false keybinds)
+      false [ "normal" "insert" "visual" "command" "terminal" ];
 
   mode_to_mode = mode:
     if mode == "normal" then
@@ -182,7 +191,8 @@ let
   ftkeybinds-file = nilm.Basics.pipe ftkeybinds_grouped [
     (nilm.List.map (list:
       let item0 = nilm.List.get 0 list;
-      in ''
+      in
+      ''
         vim.api.nvim_create_autocmd([[FileType]], {
           pattern = ${lua.toLua item0.filetypes},
           callback = function(event)
@@ -250,13 +260,14 @@ let
     (nilm.String.join "\n")
     (if nilm.List.any shouldRequireWhichKey ftkeybinds then
       nilm.Basics.add
-      (lua.toValidLuaInsert ''local whichkey = require("which-key")'')
+        (lua.toValidLuaInsert ''local whichkey = require("which-key")'')
     else
       nilm.Basics.identity)
     (pkgs.writeText "${name}-generated-ft-keybinds.lua")
   ];
 
-in ''
+in
+''
   cp ${init-file} $out/${name}/init.lua
   mkdir -p $out/${name}/lua/${name}-generated-config/
   cp ${set-file} $out/${name}/lua/${name}-generated-config/set.lua
