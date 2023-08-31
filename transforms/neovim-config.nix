@@ -38,10 +38,9 @@ let
                 }) do
                   if client.name == name then
                     return false
-                  else 
-                    return true;
                   end
                 end
+                return true
               end
             })'')
           keybinds)
