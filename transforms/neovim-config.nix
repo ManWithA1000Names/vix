@@ -26,24 +26,25 @@ let
       Dict.remove-rec "normal.formatKey"
         (Dict.insert-rec "normal.${keybinds.normal.formatKey}"
           (_: ''
-            function() vim.lsp.buf.format({
-              filter = function(client)
-                for _, name in ipairs(${
-                  lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
-                    (nilm.List.map (tool:
-                      if Dict.getOr "disable_ls_formatting" false tool then
-                        getToolName tool
-                      else
-                        "") tooling))
-                }) do
-                  if client.name == name then
-                    return false
+            function()
+              vim.lsp.buf.format({
+                filter = function(client)
+                  for _, name in ipairs(${
+                    lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
+                      (nilm.List.map (tool:
+                        if Dict.getOr "disable_ls_formatting" false tool then
+                          getToolName tool
+                        else
+                          "") tooling))
+                  }) do
+                    if client.name == name then
+                      return false
+                    end
                   end
+                  return true
                 end
-                return true
-              end
-              end
-            })'')
+              })
+            end'')
           keybinds)
     else
       keybinds;
