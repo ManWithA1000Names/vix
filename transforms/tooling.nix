@@ -9,7 +9,7 @@ let
   #   exe = "taplo";
   #   lua = '''';
   #   manual-setup = '''';
-  #   disable_ls_format = bool;
+  #   disable_ls_formatting = bool;
   #   options = {
   #     single_file_support = true;
   #   };

@@ -3,7 +3,7 @@ pkgs: [
     type = "language-server";
     pkg = pkgs.nodePackages.bash-language-server;
     name = "bashls";
-    disable_ls_format = true;
+    disable_ls_formatting = true;
     exe = "bash-language-server";
   }
   {

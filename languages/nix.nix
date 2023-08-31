@@ -4,7 +4,7 @@ pkgs: [
     pkg = pkgs.nil;
     name = "nil_ls";
     exe = "nil";
-    disable_ls_format = true;
+    disable_ls_formatting = true;
     options = {
       settings = {
         nil = {

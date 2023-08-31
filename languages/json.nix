@@ -3,7 +3,7 @@ pkgs: [
     type = "language-server";
     pkg = pkgs.nodePackages.vscode-json-languageserver;
     name = "jsonls";
-    disable_ls_format = true;
+    disable_ls_formatting = true;
     exe = "vscode-json-languageserver";
     options = {
       settings = {
