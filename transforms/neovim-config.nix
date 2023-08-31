@@ -4,28 +4,27 @@
 let
   inherit (nilm) Dict;
 
-  keybindsWithFormatKey = if Dict.member "formatKey" keybinds then
-    keybinds // {
-      ${keybinds.formatKey} = _: ''
-        vim.lsp.buf.format({
-          filter = function(client)
-            for _, name in ipairs(${
-              lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
-                (nilm.List.map (tool:
-                  if Dict.getOr "disable_ls_formatting" false tool then
-                    tool.name
-                  else
-                    "") tooling))
-            }) do
-              if client.name == name then
-                return false
-              else 
-                return true;
-              end
+  keybindsWithFormatKey = if Dict.member-rec "normal.formatKey" keybinds then
+    Dict.remove-rec "normal.formatKey"
+    (Dict.insert-rec "normal.${keybinds.normal.formatKey}" ''
+      vim.lsp.buf.format({
+        filter = function(client)
+          for _, name in ipairs(${
+            lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
+              (nilm.List.map (tool:
+                if Dict.getOr "disable_ls_formatting" false tool then
+                  tool.name
+                else
+                  "") tooling))
+          }) do
+            if client.name == name then
+              return false
+            else 
+              return true;
             end
-          end;
-        })'';
-    }
+          end
+        end;
+      })'' keybinds)
   else
     keybinds;
 
