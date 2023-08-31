@@ -34,7 +34,7 @@ let
           lua.toLua (Dict.remove "useWhichKey" keybinds.${mode})
         }, {mode = "${mode_to_mode mode}", ${
           if buffer != null then "buffer = ${lua.toLua buffer}," else ""
-        });''
+        }});''
     else
       lua.toKeybindings (mode_to_mode mode) buffer keybinds.${mode};
 
