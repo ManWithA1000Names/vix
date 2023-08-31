@@ -34,8 +34,7 @@
         });
 
     mkDerivation = { system, nixpkgs, name ? "vix", config ? { }
-      , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ]
-      , on_ls_attach ? null }:
+      , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
@@ -44,7 +43,7 @@
         tooling_pkgs = nilm.List.map (nilm.Dict.get "pkg") tooling;
 
         transformed-neovim-config = import ./transforms/neovim-config.nix {
-          inherit pkgs lua name nilm;
+          inherit pkgs lua name nilm tooling;
           which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
         } config;
 
@@ -53,9 +52,9 @@
           app-name = name;
         } { inherit plugin-setups plugin-sources less; };
 
-        transformed-tooling = import ./transforms/tooling.nix {
-          inherit pkgs lua name nilm on_ls_attach;
-        } tooling;
+        transformed-tooling =
+          import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
+          tooling;
 
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${name}-configuration";
@@ -78,6 +77,7 @@
             echo "Done generating the configurtion."
           '';
         };
+
       in pkgs.writeScriptBin name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;

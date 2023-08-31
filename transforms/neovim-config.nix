@@ -1,8 +1,33 @@
-{ pkgs, name, lua, nilm, which-key-in-plugins }:
+{ pkgs, name, lua, nilm, tooling, which-key-in-plugins }:
 { init ? "", set ? { }, globals ? { }, colorscheme ? "", keybinds ? { }
 , enable_vim_loader ? true, ftkeybinds ? [ ] }:
 let
   inherit (nilm) Dict;
+
+  keybindsWithFormatKey = if Dict.member "formatKey" keybinds then
+    keybinds // {
+      ${keybinds.formatKey} = _: ''
+        vim.lsp.buf.format({
+          filter = function(client)
+            for _, name in ipairs(${
+              lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
+                (nilm.List.map (tool:
+                  if Dict.getOr "disable_ls_formatting" false tool then
+                    tool.name
+                  else
+                    "") tooling))
+            }) do
+              if client.name == name then
+                return false
+              else 
+                return true;
+              end
+            end
+          end;
+        })'';
+    }
+  else
+    keybinds;
 
   ftkeybinds_grouped = nilm.List.groupBy (attrs: attrs.filetypes) ftkeybinds;
 
@@ -93,51 +118,53 @@ let
   '';
 
   keybindinds-file = pkgs.writeText "${name}-generated-keybindinds.lua" ''
-    ${if shouldRequireWhichKey keybinds && which-key-in-plugins then
+    ${if shouldRequireWhichKey keybindsWithFormatKey
+    && which-key-in-plugins then
       ''local whichkey = require("which-key");''
-    else if shouldRequireWhichKey keybinds && !which-key-in-plugins then
+    else if shouldRequireWhichKey keybindsWithFormatKey
+    && !which-key-in-plugins then
       builtins.abort
       "The useWhichKey option was set, but which-key is not present in you plugins!"
     else
       ""}
 
     --{{ INJECTED LUA CODE
-    ${lua.toValidLuaInsert (Dict.getOr "lua" "" keybinds)}
+    ${lua.toValidLuaInsert (Dict.getOr "lua" "" keybindsWithFormatKey)}
     --}}
 
     -- KEYBINDINDS
     --{{ normal mode
     ${produceKeybindings {
       mode = "normal";
-      inherit keybinds;
+      keybinds = keybindsWithFormatKey;
     }}
     --}}
 
     --{{ insert mode
     ${produceKeybindings {
       mode = "insert";
-      inherit keybinds;
+      keybinds = keybindsWithFormatKey;
     }}
     --}}
 
     --{{ visual/select mode
     ${produceKeybindings {
       mode = "visual";
-      inherit keybinds;
+      keybinds = keybindsWithFormatKey;
     }}
     --}}
 
     --{{ command mode
     ${produceKeybindings {
       mode = "command";
-      inherit keybinds;
+      keybinds = keybindsWithFormatKey;
     }}
     --}}
 
     --{{ terminal mode
     ${produceKeybindings {
       mode = "terminal";
-      inherit keybinds;
+      keybinds = keybindsWithFormatKey;
     }}
     --}}
   '';

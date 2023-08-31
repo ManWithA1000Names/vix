@@ -1,4 +1,4 @@
-{ name, lua, pkgs, nilm, on_ls_attach }:
+{ name, lua, pkgs, nilm }:
 applied_tools:
 let
   inherit (nilm) List Dict;
@@ -21,21 +21,7 @@ let
         "vim.tbl_extend([[keep]],{[[${
           getExe tool
         }]]},server.document_config.default_config.cmd)";
-    } // Dict.getOr "options" { } tool
-    // (if Dict.getOr-rec "options.disable_ls_format" false tool then {
-      on_attach = ''
-        function(client, bufnr)
-          client.server_capabilities.documentFormattingProvider = false
-          client.server_capabilities.documentRangeFormattingProvider = false;
-          ${
-            if Dict.member-rec "options.on_attach" tool then
-              "(${tool.options.on_attach})(client, bufnr);"
-            else
-              ""
-          }
-        end'';
-    } else
-      { });
+    } // Dict.getOr "options" { } tool;
 
   getName = tool:
     if Dict.member "name" tool then
@@ -54,12 +40,12 @@ let
     else
       pkgs.lib.getExe tool.pkg;
 
-  merged_tools_set = List.foldl (tool: acc:
+  tools = Dict.values (List.foldl (tool: acc:
     let name = getName tool;
     in if Dict.member name acc then
       Dict.insert name (nilm.Nix.deepMerge acc.${name} tool) acc
     else
-      Dict.insert name tool acc) { } applied_tools;
+      Dict.insert name tool acc) { } applied_tools);
 
   valid_tool = tool:
     if !(Dict.member "type" tool) then
@@ -82,10 +68,10 @@ let
     else
       true;
 
-  tools = Dict.values merged_tools_set;
   language-servers =
     List.filter (tool: assert valid_tool tool; tool.type == "language-server")
     tools;
+
   null-ls-tools = List.filter (tool: tool.type != "language-server") tools;
 
   configure-language-server = { type, pkg, options ? { }, ... }@tool:
