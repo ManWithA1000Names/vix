@@ -26,7 +26,7 @@ let
       Dict.remove-rec "normal.formatKey"
         (Dict.insert-rec "normal.${keybinds.normal.formatKey}"
           (_: ''
-            vim.lsp.buf.format({
+            function() vim.lsp.buf.format({
               filter = function(client)
                 for _, name in ipairs(${
                   lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
@@ -41,6 +41,7 @@ let
                   end
                 end
                 return true
+              end
               end
             })'')
           keybinds)
