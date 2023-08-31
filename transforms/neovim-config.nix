@@ -150,7 +150,7 @@ let
           pattern = ${lua.toLua item0.filetypes},
           callback = function(event)
           ${
-            nilm.List.map (keybinds: ''
+            nilm.String.join "\n" (nilm.List.map (keybinds: ''
               (function()
                 -- INJECTED LUA CODE 
                 ${lua.toValidLuaInsert (Dict.getOr "lua" "" keybinds)}
@@ -205,7 +205,7 @@ let
                   }
                 }
                 --}}
-              end)();'')
+              end)();''))
           }
           end,
         });
