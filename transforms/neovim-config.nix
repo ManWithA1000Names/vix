@@ -25,7 +25,7 @@ let
     else
       builtins.abort "Unrecognized keybind mode: ${mode}";
 
-  produceKeybindings = { mode, keybinds, buf ? null }:
+  produceKeybindings = { mode, keybinds, buffer ? null }:
     if !(Dict.member mode keybinds) then
       ""
     else if Dict.getOr-rec "${mode}.useWhichKey" false keybinds then
@@ -36,7 +36,7 @@ let
           if buf != null then "buffer = ${lua.toLua buf}," else ""
         });''
     else
-      lua.toKeybindings (mode_to_mode mode) buf keybinds.${mode};
+      lua.toKeybindings (mode_to_mode mode) buffer keybinds.${mode};
 
   # files
 
