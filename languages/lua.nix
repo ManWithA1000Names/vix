@@ -4,6 +4,7 @@ pkgs: [
     pkg = pkgs.lua-language-server;
     name = "lua_ls";
     exe = "lua-language-server";
+    disable_ls_format = true;
     options = {
       settings = {
         Lua = {

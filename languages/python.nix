@@ -3,6 +3,7 @@ pkgs: [
     type = "language-server";
     pkg = pkgs.pyright;
     exe = "pyright";
+    disable_ls_format = true;
   }
   {
     type = "formatting";

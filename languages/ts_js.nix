@@ -4,6 +4,7 @@ pkgs: [
     pkg = pkgs.nodePackages.typescript-language-server;
     name = "tsserver";
     exe = "typescript-language-server";
+    disable_ls_format = true;
     options = {
       root_dir = _: ''function(fname)
           return util.root_pattern("package.json")(fname)
@@ -16,6 +17,7 @@ pkgs: [
     pkg = pkgs.deno;
     name = "denols";
     exe = "deno";
+    disable_ls_format = true;
     options = {
       root_dir = _: ''function(fname)
           return util.root_pattern("deno.json", "deno.jsonc")(fname)
@@ -24,9 +26,10 @@ pkgs: [
   }
   {
     type = "language-server";
-    pkg = pkgs.nodePackages.vscode-langservers-extracted;
     name = "eslint";
+    pkg = pkgs.nodePackages.vscode-langservers-extracted;
     exe = "vscode-eslint-language-server";
+    disable_ls_format = true;
   }
   {
     type = "formatting";

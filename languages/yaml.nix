@@ -4,6 +4,7 @@ pkgs: [
     pkg = pkgs.yaml-language-server;
     name = "yamlls";
     exe = "yaml-language-server";
+    disable_ls_format = true;
     options = {
       settings = {
         yaml = {

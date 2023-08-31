@@ -9,10 +9,33 @@ let
   #   exe = "taplo";
   #   lua = '''';
   #   manual-setup = '''';
+  #   disable_ls_format = bool;
   #   options = {
   #     single_file_support = true;
   #   };
   # };
+
+  getLSOpts = tool:
+    {
+      cmd = _:
+        "vim.tbl_extend([[keep]],{[[${
+          getExe tool
+        }]]},server.document_config.default_config.cmd)";
+    } // Dict.getOr "options" { } tool
+    // (if Dict.getOr-rec "options.disable_ls_format" false tool then {
+      on_attach = ''
+        function(client, bufnr)
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false;
+          ${
+            if Dict.member-rec "options.on_attach" tool then
+              "(${tool.options.on_attach})(client, bufnr);"
+            else
+              ""
+          }
+        end'';
+    } else
+      { });
 
   getName = tool:
     if Dict.member "name" tool then
@@ -65,9 +88,8 @@ let
     tools;
   null-ls-tools = List.filter (tool: tool.type != "language-server") tools;
 
-  configure-language-server = { type, pkg, options ? {}, ... }@tool:
-    let
-      name = getName tool;
+  configure-language-server = { type, pkg, options ? { }, ... }@tool:
+    let name = getName tool;
     in if Dict.member "manual-setup" tool then ''
       local lspconfig_ok, lspconfig = pcall(require,"lspconfig")
       if not ok then return end
@@ -85,18 +107,14 @@ let
               print([[lspconfig did not recognize a language server named: '${name}']])
               return
           end
-          local opts = ${lua.toLua ({
-            on_attach = on_ls_attach;
-            cmd = _: ''vim.tbl_extend("keep",{"${getExe tool}"},server.document_config.default_config.cmd)'';
-          } // Dict.getOr "options" {} tool)};
+          local opts = ${lua.toLua (getLSOpts tool)};
           server.setup(opts)
         end)(); 
       --}}
     '';
 
   configure-null-ls = { type, pkg, ... }@tool:
-    let
-      name = getName tool;
+    let name = getName tool;
     in if Dict.member "manual-setup" tool then ''
       local null_ls_ok, null_ls = pcall(require, "null-ls")
       if not null_ls_ok then
@@ -114,9 +132,10 @@ let
           print([[null-ls did not recognize a ${type} tool named: '${name}']])
           return
         end
-        local opts = ${lua.toLua ({
-          command = getExe tool;
-        } // Dict.getOr "options" {} tool)}
+        local opts = ${
+          lua.toLua
+          ({ command = getExe tool; } // Dict.getOr "options" { } tool)
+        }
         table.insert(null_ls_sources, source.with(opts))
       end)();
       --}}
