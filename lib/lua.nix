@@ -2,15 +2,13 @@
 let
 
   removeRecursively = toremove:
-    nilm.Dict.foldl
-      (key: value: acc:
-        if key == toremove then
-          acc
-        else if nilm.Nix.isA "set" value then
-          nilm.Dict.insert key (removeRecursively toremove value) acc
-        else
-          nilm.Dict.insert key value acc)
-      { };
+    nilm.Dict.foldl (key: value: acc:
+      if key == toremove then
+        acc
+      else if nilm.Nix.isA "set" value then
+        nilm.Dict.insert key (removeRecursively toremove value) acc
+      else
+        nilm.Dict.insert key value acc) { };
 
   toLuaTableKey = arg:
     if nilm.String.startsWith "[" arg && nilm.String.endsWith "]" arg then
@@ -64,34 +62,36 @@ let
       let res = value null; in assert nilm.Nix.isA "string" res; res
     else
       builtins.abort
-        "Found keymapping (${key}) to a value that is not either a: string, list, tuple or lambda.";
-in
-rec {
+      "Found keymapping (${key}) to a value that is not either a: string, list, tuple or lambda.";
+in rec {
   inherit toLua;
 
   # make sure the given string ends with a plain ";\n" or is an empty string ("")
   toValidLuaInsert = str:
-    let trimmed = nilm.String.trim str; in
-    if nilm.String.isEmpty trimmed then trimmed
-    else trimmed + nilm.Nix.orDefault (! nilm.String.endsWith ";" trimmed) ";" + "\n";
+    let trimmed = nilm.String.trim str;
+    in if nilm.String.isEmpty trimmed then
+      trimmed
+    else
+      trimmed + nilm.Nix.orDefault (!nilm.String.endsWith ";" trimmed) ";"
+      + "\n";
 
   # convert a list into valid format to be used as arguments to a lua function.
   toArgs = nilm.Basics.compose [ (nilm.String.join ",") (nilm.List.map toLua) ];
 
   defaultPluginSetup = { name, lua ? "", setup ? { }, setupfn ? "setup" }:
     let
-      arg =
-        if nilm.Nix.isA "bool" setup then
-          "{}"
-        else if nilm.Nix.isA "list" setup then
-          toArgs setup
-        else if nilm.Nix.isA "set" setup then
-          toLua setup
-        else if nilm.Nix.isA "lambda" setup then
-          toLua (setup pkgs)
-        else builtins.abort "defaultPluginSetup received a 'setup' value that is not one of: bool, list, set, lambda.";
-    in
-    ''
+      arg = if nilm.Nix.isA "bool" setup then
+        "{}"
+      else if nilm.Nix.isA "list" setup then
+        toArgs setup
+      else if nilm.Nix.isA "set" setup then
+        toLua setup
+      else if nilm.Nix.isA "lambda" setup then
+        toLua (setup pkgs)
+      else
+        builtins.abort
+        "defaultPluginSetup received a 'setup' value that is not one of: bool, list, set, lambda.";
+    in ''
       local require_ok, plugin = pcall(require,"${name}");
       if not require_ok then
         print([[Operation failed: require("${name}"). Are you sure the name of plugin is correct?]]);
@@ -99,7 +99,12 @@ rec {
       end
       if plugin.${setupfn} ~= nil then
         -- INJECTED CODE
-        ${if nilm.String.isEmpty lua then "-- no code to inject was provided." else toValidLuaInsert lua}
+        ${
+          if nilm.String.isEmpty lua then
+            "-- no code to inject was provided."
+          else
+            toValidLuaInsert lua
+        }
         local arg = ${arg};
         local ok = pcall(plugin.${setupfn}, arg)
         if not ok then
@@ -110,11 +115,16 @@ rec {
       end
     '';
 
-  toKeybindings = mode:
+  toKeybindings = mode: buffer:
     nilm.Basics.compose [
       (nilm.String.join "\n")
       nilm.Dict.values
-      (nilm.Dict.map (key: value: ''vim.keymap.set([[${mode}]], [[${key}]], ${resolveCmd key value}, {noremap = true, silent = true});''))
+      (nilm.Dict.map (key: value:
+        "vim.keymap.set([[${mode}]], [[${key}]], ${
+          resolveCmd key value
+        }, {noremap = true, silent = true, ${
+          if buffer != null then "buffer = ${toLua buffer}" else ""
+        }});"))
       nilm.Dict.flatten
       (removeRecursively "name")
     ];

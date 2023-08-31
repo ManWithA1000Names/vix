@@ -26,52 +26,36 @@
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation (args // { inherit system; });
-        in
-        {
+        in {
           packages = {
             ${theDerivation.name} = theDerivation;
             default = theDerivation;
           };
         });
 
-    mkDerivation =
-      { system, nixpkgs, name ? "vix", config ? { }, plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ], on_ls_attach ? null }:
+    mkDerivation = { system, nixpkgs, name ? "vix", config ? { }
+      , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ]
+      , on_ls_attach ? null }:
       let
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
-        tooling = nilm.List.flatten (nilm.List.map (nilm.Basics."|>" pkgs) tools);
+        tooling =
+          nilm.List.flatten (nilm.List.map (nilm.Basics."|>" pkgs) tools);
         tooling_pkgs = nilm.List.map (nilm.Dict.get "pkg") tooling;
 
-        transformed-neovim-config = import ./transforms/neovim-config.nix
-          {
-            inherit pkgs lua name nilm;
-            which-key-in-plugins =
-              nilm.Dict.member "which-key" plugin-sources;
-          }
-          config;
+        transformed-neovim-config = import ./transforms/neovim-config.nix {
+          inherit pkgs lua name nilm;
+          which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
+        } config;
 
-        transformed-plugins = import ./transforms/pluginsV2.nix { inherit pkgs lua nilm; app-name = name; }
-          { inherit plugin-setups plugin-sources less; };
+        transformed-plugins = import ./transforms/pluginsV2.nix {
+          inherit pkgs lua nilm;
+          app-name = name;
+        } { inherit plugin-setups plugin-sources less; };
 
-        transformed-tooling = import ./transforms/tooling.nix { inherit pkgs lua name nilm on_ls_attach; }
-          tooling;
-
-        # complete_config = pkgs.runCommand "${name}-configuration" { } ''
-        #   mkdir -p $out/${name}/lua/;
-        #   mkdir -p $out/${name}/plugin/;
-        #   mkdir -p $out/${name}/after/plugin/;
-        #   mkdir -p $out/${name}/pack/${name}-plugins/start/;
-        #   mkdir -p $out/${name}/pack/${name}-plugins/opt/;
-        #   echo "Beginning to generate the configurtion."
-        #   echo "1/4 Created neccessary directories..." 
-        #   ${transformed-neovim-config}
-        #   echo "2/4 Created neovim config..." 
-        #   ${transformed-plugins}
-        #   echo "3/4 Created the plugins..." 
-        #   ${transformed-tooling}
-        #   echo "4/4 Created the tooling configurations..." 
-        #   echo "Done generating the configurtion."
-        # '';
+        transformed-tooling = import ./transforms/tooling.nix {
+          inherit pkgs lua name nilm on_ls_attach;
+        } tooling;
 
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${name}-configuration";
@@ -94,8 +78,7 @@
             echo "Done generating the configurtion."
           '';
         };
-      in
-      pkgs.writeScriptBin name ''
+      in pkgs.writeScriptBin name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";
