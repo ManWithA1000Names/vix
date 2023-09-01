@@ -4,6 +4,6 @@ pkgs: [
     type = "language-server";
     pkg = pkgs.haskellPackages.haskell-language-server;
     name = "hls";
-    exe = "haskell-language-server-wrapper";
+    exe = "haskell-language-server";
   }
 ]
