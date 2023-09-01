@@ -2,6 +2,7 @@ pkgs: [
   {
     type = "language-server";
     pkg = pkgs.pyright;
+    name = "pyright";
     exe = "pyright-langserver";
     disable_ls_formatting = true;
   }
