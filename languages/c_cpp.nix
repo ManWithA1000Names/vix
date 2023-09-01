@@ -5,7 +5,7 @@ pkgs: [
     exe = "clangd";
     options = {
       capabilities = _: ''(function()
-        locals caps = vim.lsp.protocol.make_client_capabilities();
+        local caps = vim.lsp.protocol.make_client_capabilities();
         caps.offsetEncoding = { "utf-16" };
         return caps;
       end)()'';
