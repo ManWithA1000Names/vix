@@ -1,7 +1,7 @@
 pkgs: [
   {
     type = "language-server";
-    pkg = pkgs.llvmPackages_16.clang;
+    pkg = pkgs.clang-tools_16;
     exe = "clangd";
   }
 
