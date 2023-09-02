@@ -129,7 +129,9 @@ let
         opt = Dict.getOr "lazy" false plugin;
         inherit name;
       };
-    in if Nix.isA "bool" plugin.setup && !plugin.setup then
+    in if !(Dict.member "setup" plugin) then
+      builtins.abort "Plugin ${name} does not contain a setup function!"
+    else if Nix.isA "bool" plugin.setup && !plugin.setup then
       copy-src-cmd
     else
       setup-file name plugin + copy-src-cmd;
