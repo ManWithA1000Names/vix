@@ -10,7 +10,7 @@
       exe? : String,
       lua? : String,
       name? : String,
-      manual-setup? : String
+      manual_setup? : String
       options? : Attribute Set
       disable_ls_formatting? : bool
     };
@@ -44,7 +44,7 @@
     Atribtrary lua code to be injected BEFORE
     the setup code for the tool runs.
 
-    -- MANUAL-SETUP? : String
+    -- MANUAL_SETUP? : String
     If present disregard all of vix's builtin logic to set up the tool
     and shift ALL of the setup to the lua code provided.
     This will not use the "pkg" attribute or ANY OTHER ATTRIBUTE.
@@ -63,18 +63,6 @@
 applied_tools:
 let
   inherit (nilm) List Dict;
-  # example = {
-  #   type = "language-server";
-  #   pkg = pkgs.taplo;
-  #   name = "taplo";
-  #   exe = "taplo";
-  #   lua = '''';
-  #   manual-setup = '''';
-  #   disable_ls_formatting = bool;
-  #   options = {
-  #     single_file_support = true;
-  #   };
-  # };
 
   getLSOpts = tool:
     {
@@ -137,12 +125,12 @@ let
 
   configure-language-server = { type, pkg, options ? { }, ... }@tool:
     let name = getName tool;
-    in if Dict.member "manual-setup" tool then ''
+    in if Dict.member "manual_setup" tool then ''
       local lspconfig_ok, lspconfig = pcall(require,"lspconfig")
       if not ok then return end
       -- Setting up language-server: '${name}' 
       ${if Dict.member "lua" tool then lua.toValidLuaInsert tool.lua else ""}
-      ${lua.toValidLuaInsert tool.manual-setup}
+      ${lua.toValidLuaInsert tool.manual_setup}
     '' else ''
       --{{ Setting up language-server: '${name}'
         (function()
@@ -162,14 +150,14 @@ let
 
   configure-null-ls = { type, pkg, ... }@tool:
     let name = getName tool;
-    in if Dict.member "manual-setup" tool then ''
+    in if Dict.member "manual_setup" tool then ''
       local null_ls_ok, null_ls = pcall(require, "null-ls")
       if not null_ls_ok then
         return
       end
       -- Setting up a ${type} tool: '${name}'
       ${if Dict.member "lua" tool then lua.toValidLuaInsert tool.lua else ""}
-      ${lua.toValidLuaInsert tool.manual-setup}
+      ${lua.toValidLuaInsert tool.manual_setup}
     '' else ''
       --{{ Setting up a ${type} tool: '${name}'
       (function()
@@ -190,9 +178,9 @@ let
 
   compile-language-servers = let
     manually-configured =
-      List.filter (Dict.member "manual-setup") language-servers;
+      List.filter (Dict.member "manual_setup") language-servers;
     auto-configured =
-      List.filter (ls: !(Dict.member "manual-setup" ls)) language-servers;
+      List.filter (ls: !(Dict.member "manual_setup" ls)) language-servers;
 
     separate-files = List.map
       (ls: pkgs.writeText "${getName ls}.lua" (configure-language-server ls))
@@ -231,9 +219,9 @@ let
 
   compile-null-ls = let
     manually-configured =
-      List.filter (Dict.member "manual-setup") null-ls-tools;
+      List.filter (Dict.member "manual_setup") null-ls-tools;
     auto-configured =
-      List.filter (tool: !(Dict.member "manual-setup" tool)) null-ls-tools;
+      List.filter (tool: !(Dict.member "manual_setup" tool)) null-ls-tools;
 
     separate-files = List.map
       (tool: pkgs.writeText "${getName tool}.lua" (configure-null-ls tool))
@@ -260,7 +248,7 @@ let
             if source == nil or opts == nil then
               print([[While processing tool: "${
                 getName tool
-              }". It seems to be wrognly configured, the manual-setup code did not return a null-ls source and a options table!]])
+              }". It seems to be wrognly configured, the manual_setup code did not return a null-ls source and a options table!]])
               return
             end
             if opts.command == nil then
