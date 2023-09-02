@@ -1,4 +1,65 @@
-{ name, lua, pkgs, nilm }:
+# This file contains all the necessary logic to convert
+# the given arguments from configuration sets
+# into a series of shell commands which produce the necessary files
+# for the tools to be correctly set up and used withing the neovim configuration.
+/* TOOL SPEC:
+    type alias Tool = {
+      type : "language-server" | "diagnostics" | "formatting",
+      pkg : NixDerivation,
+
+      exe? : String,
+      lua? : String,
+      name? : String,
+      manual-setup? : String
+      options? : Attribute Set
+      disable_ls_formatting? : bool
+    };
+
+    Lets break down each one:
+
+    -- TYPE : "language-server" | "diagnostics" | "formatting"
+    The "type" attribute communicates to which what type of tool this is.
+    case value of
+      "language-server" -> Means the tool is a language-server.
+      "diagnostics" -> Means the tool is a linter, or a tool that falls into
+                       the diagnostics category of null-ls.
+      "formatting" -> Means the tool is a formatter, or a tool that falls into
+                      the formatting category of null-ls.
+
+    -- PKG : NixDerivation
+    The nix derivation tha builds the tool.
+
+    -- EXE? : String
+    The name of executable. If the attribute is missing then
+    the "name" attribute will be chosen for the name of the executable.
+    If that too is missing then the nixpkgs.lib.getExe function will be used
+    on the the derivation given to the "pkg" attribute.
+
+    -- NAME? : String
+    The name for the tool that nvim-lspconfig or null-ls uses.
+    If its missing the then nixpkgs.lib.getName function will be used
+    on the nix derivation provided to the "pkg" attribute.
+
+    -- LUA? : String
+    Atribtrary lua code to be injected BEFORE
+    the setup code for the tool runs.
+
+    -- MANUAL-SETUP? : String
+    If present disregard all of vix's builtin logic to set up the tool
+    and shift ALL of the setup to the lua code provided.
+    This will not use the "pkg" attribute or ANY OTHER ATTRIBUTE.
+
+    -- DISABLE_LS_FORMATTING? : BOOL
+    If present and true, then prevent the language server from being used to format the document.
+    This is usefull if the langauge server and another formatting tool clash.
+
+    -- OPTIONS?: Attribute Set
+    An attribute set that will be compiled to a lua table and passed to the
+    lspconfig.<lang server>.setup function or the null-ls.builtins.<category>.<name>.with function.
+    By defualt if the cmd or the command option is missing it will be provided with the path
+    to the derivation provided to the "pkg" attribute.
+*/
+{ app-name, lua, pkgs, nilm }:
 applied_tools:
 let
   inherit (nilm) List Dict;
@@ -160,10 +221,10 @@ let
     '';
 
   in ''
-    mkdir -p $out/${name}/lua/manual-language-servers/;
-    cp ${common-file} $out/${name}/after/plugin/;
+    mkdir -p $out/${app-name}/lua/manual-language-servers/;
+    cp ${common-file} $out/${app-name}/after/plugin/;
     ${List.foldl (file: acc:
-      acc + "\n" + "cp ${file} $out/${name}/lua/manual-language-servers/${
+      acc + "\n" + "cp ${file} $out/${app-name}/lua/manual-language-servers/${
         pkgs.lib.getName file
       };") "" separate-files}
   '';
@@ -195,29 +256,29 @@ let
       ${List.foldl (tool: acc:
         acc + "\n" + ''
           (function()
-                    local source, opts = require("manual-null-ls.${
-                      getName tool
-                    }")
-                    if source == nil or opts == nil then
-                      print([[While processing tool: "${
-                        getName tool
-                      }". It seems to be wrognly configured, the manual-setup code did not return a null-ls source and a options table!]])
-                      return
-                    end
-                    if opts.command == nil then
-                      opts.command = "${getExe tool}"
-                    end
-                    table.insert(null_ls_sources, source.with(opts))
-                  end)() 
+            local source, opts = require("manual-null-ls.${getName tool}")
+            if source == nil or opts == nil then
+              print([[While processing tool: "${
+                getName tool
+              }". It seems to be wrognly configured, the manual-setup code did not return a null-ls source and a options table!]])
+              return
+            end
+            if opts.command == nil then
+              opts.command = "${getExe tool}"
+            end
+            table.insert(null_ls_sources, source.with(opts))
+          end)() 
         '') "" manually-configured}
 
       -- ACTUAL SETUP
       null_ls.setup({sources = null_ls_sources})
     '';
-  in "\n      mkdir -p $out/${name}/lua/manual-null-ls/;\n      cp ${common-file} $out/${name}/after/plugin/;\n      ${
-          List.foldl (file: acc:
-            acc + "\n" + "cp ${file} $out/${name}/lua/manual-null-ls/${
-              pkgs.lib.getName file
-            };") "" separate-files
-        }\n    ";
+  in ''
+    mkdir -p $out/${app-name}/lua/manual-null-ls/;
+    cp ${common-file} $out/${app-name}/after/plugin/;
+    ${List.foldl (file: acc:
+      acc + "\n" + "cp ${file} $out/${app-name}/lua/manual-null-ls/${
+        pkgs.lib.getName file
+      };") "" separate-files}
+  '';
 in compile-language-servers + "\n" + compile-null-ls

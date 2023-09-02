@@ -1,12 +1,79 @@
-{ pkgs, name, lua, nilm, tooling, which-key-in-plugins }:
-{ init ? ""
-, set ? { }
-, globals ? { }
-, colorscheme ? ""
-, keybinds ? { }
-, enable_vim_loader ? true
-, ftkeybinds ? [ ]
-}:
+# This file contains all the necessary logic to convert
+# the given arguments from configuration sets
+# into a series of shell commands which produce the necessary files
+# that configures neovim to the users specification.
+/* -- CONFIG SPEC:
+   type alias Keybinds = {
+     lua? : String,
+     normal? : { useWhichKey? : Bool, formatKey? : String, ...Attribute Set },
+     insert? : { useWhichKey? : Bool, ...Attribute Set },
+     visual? : { useWhichKey? : Bool, ...Attribute Set },
+     command? : { useWhichKey? : Bool, ...Attribute Set },
+     terminal : { useWhichKey? : Bool, ...Attribute Set },
+   }
+   type alias Config = {
+     init? : String,
+     set? : Attribute Set,
+     globals? : Attribute Set,
+     colorscheme? : String,
+     keybinds? : Keybinds,
+     enable_vim_loader? : Bool,
+     ftkeybinds : [{filetypes: [String], ...Keybinds}]
+   }
+
+   Lets see each one:
+
+   -- INIT? : String
+   Custom lua code to be executed as soon as neovim starts up.
+   A.K.A this code will be placed in the init.lua.
+
+   -- SET? : Attribute Set
+   An attribute set.where the key value pairs are compiled to 
+   "vim.opt.<key> = <value>" for each key value pair.
+
+   -- GLOBALS? : Attribute Set
+   An attribute set where the key value pairs are compiled to
+   "vim.g.<key> = <value>" for each key value pair.
+
+   -- COLORSCHEME?: String
+   The name of the colorscheme you want to apply.
+   Note: this colorscheme must be already available.
+
+   -- ENABLE_VIM_LOADER? : Bool
+   Whether to enable the new (nvim 0.9.1) "vim.loader".
+   For faster startup time and lua jit compiled plugin caching.
+
+   -- KEYBINDS? : Keybinds
+     -- LUA? : String
+     Custom lua code to be exectued before the code that binds the keys
+     is executed.
+     -- NORMAL? : Attribute Set
+     The keybindings you want ot use in normal mode.
+       -- useWhichKey? : Bool
+       Whether or not to use which-key to create the key bindings.
+       Note: Which key must be present in your plugins.
+       -- formatKey? : String
+       A specil key that vix uses to attach custom formatting logic
+       to achieve things, such as not allowing chosen language server to format
+       the buffer.
+       -- ...Attribute Set
+       Key value pairs in the form of which-key. View the which-key docs to understand.
+       example: normal = {"<leader>".r = [(_: "vim.lsp.buf.rename") "Rename"];};
+       would become:
+       vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename);
+       or with which-key:
+       whichkey.register({[ [[<leader>r]] = {vim.lsp.buf.rename, "Rename"} ]}, {mode = "n"});
+    -- same goes for all the other keys in Keybinds but for their respective mode.
+
+   -- FTKEYBINDS? : [{filetypes : [String], ...Keybinds}]
+   An array of keybinds, that also include another attribute called "filetypes".
+   Which means that those Keybinds will only be bound if the buffer matches one of the 
+   filetypes provided.
+*/
+{ pkgs, app-name, lua, nilm, }:
+{ tooling, which-key-in-plugins }:
+{ init ? "", set ? { }, globals ? { }, colorscheme ? "", keybinds ? { }
+, enable_vim_loader ? true, ftkeybinds ? [ ] }:
 let
   inherit (nilm) Dict;
 
@@ -19,45 +86,42 @@ let
       pkgs.lib.getName tool.pkg
     else
       builtins.abort
-        "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
+      "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
 
-  keybindsWithFormatKey =
-    if Dict.member-rec "normal.formatKey" keybinds then
-      Dict.remove-rec "normal.formatKey"
-        (Dict.insert-rec "normal.${keybinds.normal.formatKey}"
-          [
-            (_: ''
-              function()
-                vim.lsp.buf.format({
-                  filter = function(client)
-                    for _, name in ipairs(${
-                      lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
-                        (nilm.List.map (tool:
-                          if Dict.getOr "disable_ls_formatting" false tool then
-                            getToolName tool
-                          else
-                            "") tooling))
-                    }) do
-                      if client.name == name then
-                        return false
-                      end
-                    end
-                    return true
-                  end
-                })
-              end'')
-            "Hover"
-          ]
-          keybinds)
-    else
-      keybinds;
+  keybindsWithFormatKey = if Dict.member-rec "normal.formatKey" keybinds then
+    Dict.remove-rec "normal.formatKey"
+    (Dict.insert-rec "normal.${keybinds.normal.formatKey}" [
+      (_: ''
+        function()
+          vim.lsp.buf.format({
+            filter = function(client)
+              for _, name in ipairs(${
+                lua.toLua (nilm.List.filter (n: !(nilm.String.isEmpty n))
+                  (nilm.List.map (tool:
+                    if Dict.getOr "disable_ls_formatting" false tool then
+                      getToolName tool
+                    else
+                      "") tooling))
+              }) do
+                if client.name == name then
+                  return false
+                end
+              end
+              return true
+            end
+          })
+        end'')
+      "Hover"
+    ] keybinds)
+  else
+    keybinds;
 
   ftkeybinds_grouped = nilm.List.groupBy (attrs: attrs.filetypes) ftkeybinds;
 
   shouldRequireWhichKey = keybinds:
     nilm.List.foldl
-      (m: acc: acc || Dict.getOr-rec "${m}.useWhichKey" false keybinds)
-      false [ "normal" "insert" "visual" "command" "terminal" ];
+    (m: acc: acc || Dict.getOr-rec "${m}.useWhichKey" false keybinds)
+    false [ "normal" "insert" "visual" "command" "terminal" ];
 
   mode_to_mode = mode:
     if mode == "normal" then
@@ -122,8 +186,8 @@ let
       vim.cmd([[colorscheme ${colorscheme}]])''}
 
     -- CALL GENREATED OPTIONS && GLOBALS
-    require("${name}-generated-config.globals")
-    require("${name}-generated-config.set")
+    require("${app-name}-generated-config.globals")
+    require("${app-name}-generated-config.set")
   '';
 
   set-file = pkgs.writeText "set.lua" ''
@@ -140,7 +204,7 @@ let
       "" (Dict.remove "lua" globals))}
   '';
 
-  keybindinds-file = pkgs.writeText "${name}-generated-keybindinds.lua" ''
+  keybindinds-file = pkgs.writeText "${app-name}-generated-keybindinds.lua" ''
     ${if shouldRequireWhichKey keybindsWithFormatKey
     && which-key-in-plugins then
       ''local whichkey = require("which-key");''
@@ -195,8 +259,7 @@ let
   ftkeybinds-file = nilm.Basics.pipe ftkeybinds_grouped [
     (nilm.List.map (list:
       let item0 = nilm.List.get 0 list;
-      in
-      ''
+      in ''
         vim.api.nvim_create_autocmd([[FileType]], {
           pattern = ${lua.toLua item0.filetypes},
           callback = function(event)
@@ -264,18 +327,17 @@ let
     (nilm.String.join "\n")
     (if nilm.List.any shouldRequireWhichKey ftkeybinds then
       nilm.Basics.add
-        (lua.toValidLuaInsert ''local whichkey = require("which-key")'')
+      (lua.toValidLuaInsert ''local whichkey = require("which-key")'')
     else
       nilm.Basics.identity)
-    (pkgs.writeText "${name}-generated-ft-keybinds.lua")
+    (pkgs.writeText "${app-name}-generated-ft-keybinds.lua")
   ];
 
-in
-''
-  cp ${init-file} $out/${name}/init.lua
-  mkdir -p $out/${name}/lua/${name}-generated-config/
-  cp ${set-file} $out/${name}/lua/${name}-generated-config/set.lua
-  cp ${globals-file} $out/${name}/lua/${name}-generated-config/globals.lua
-  cp ${keybindinds-file} $out/${name}/after/plugin/;
-  cp ${ftkeybinds-file} $out/${name}/after/plugin/;
+in ''
+  cp ${init-file} $out/${app-name}/init.lua
+  mkdir -p $out/${app-name}/lua/${app-name}-generated-config/
+  cp ${set-file} $out/${app-name}/lua/${app-name}-generated-config/set.lua
+  cp ${globals-file} $out/${app-name}/lua/${app-name}-generated-config/globals.lua
+  cp ${keybindinds-file} $out/${app-name}/after/plugin/;
+  cp ${ftkeybinds-file} $out/${app-name}/after/plugin/;
 ''

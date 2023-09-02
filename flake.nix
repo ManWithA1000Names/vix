@@ -7,20 +7,87 @@
   };
 
   outputs = { self, flake-utils, nilm, ... }: {
-    tool_presets_per_language = {
-      nix = import ./languages/nix.nix;
-      "c/cpp" = import ./languages/c_cpp.nix;
-      elm = import ./languages/elm.nix;
+    tools-for = {
       go = import ./languages/go.nix;
-      lua = import ./languages/lua.nix;
-      python = import ./languages/python.nix;
       sh = import ./languages/sh.nix;
-      tailwindcss = import ./languages/tailwindcss.nix;
-      "ts/js" = import ./languages/ts_js.nix;
-      haskell = import ./languages/haskell.nix;
+      nix = import ./languages/nix.nix;
+      elm = import ./languages/elm.nix;
+      lua = import ./languages/lua.nix;
       json = import ./languages/json.nix;
       yaml = import ./languages/yaml.nix;
       toml = import ./languages/toml.nix;
+      "ts/js" = import ./languages/ts_js.nix;
+      "c/cpp" = import ./languages/c_cpp.nix;
+      python = import ./languages/python.nix;
+      haskell = import ./languages/haskell.nix;
+      tailwindcss = import ./languages/tailwindcss.nix;
+    };
+
+    filetypes-for = {
+      sh = [ "sh" ];
+      vue = [ "vue" ];
+      vim = [ "vim" ];
+      nix = [ "nix" ];
+      ada = [ "ada" ];
+      elm = [ "elm" ];
+      lua = [ "lua" ];
+      nim = [ "nim" ];
+      awk = [ "awk" ];
+      php = [ "php" ];
+      dart = [ "dart" ];
+      rust = [ "rust" ];
+      toml = [ "toml" ];
+      java = [ "java" ];
+      csharp = [ "cs" ];
+      haxe = [ "haxe" ];
+      helm = [ "helm" ];
+      html = [ "html" ];
+      perl = [ "perl" ];
+      qml = [ "qmljs" ];
+      R = [ "r" "rmd" ];
+      raku = [ "raku" ];
+      julia = [ "julia" ];
+      cobol = [ "cobol" ];
+      astro = [ "astro" ];
+      cmake = [ "cmake" ];
+      ocaml = [ "ocaml" ];
+      svelte = [ "svelte" ];
+      racket = [ "racket" ];
+      reason = [ "reason" ];
+      kotlin = [ "kotlin" ];
+      scheme = [ "scheme" ];
+      groovy = [ "groovy" ];
+      fsharp = [ "fsharp" ];
+      erlang = [ "erlang" ];
+      python = [ "python" ];
+      zig = [ "zig" "zir" ];
+      V = [ "v" "vsh" "vv" ];
+      powershell = [ "ps1" ];
+      asm = [ "asm" "vasm" ];
+      protobuf = [ "proto" ];
+      sql = [ "sql" "mysql" ];
+      arduino = [ "arduino" ];
+      "c/cpp" = [ "c" "cpp" ];
+      crystal = [ "crystal" ];
+      docker = [ "dockefile" ];
+      vala = [ "vala" "genie" ];
+      ruby = [ "ruby" "eruby" ];
+      solidity = [ "solidity" ];
+      json = [ "json" "jsonc" ];
+      markdown = [ "markdown" ];
+      guile = [ "scheme.guile" ];
+      ansible = [ "yaml.ansible" ];
+      css = [ "css" "scss" "less" ];
+      clojure = [ "clojure" "end" ];
+      haskell = [ "haskell" "lhaskell" ];
+      go = [ "go" "gomod" "gowork" "gotmpl" ];
+      starlark = [ "star" "bzl" "BUILD.bazel" ];
+      elixir = [ "elixir" "eelixir" "heex" "surface" ];
+      terraform = [ "terraform" "terraform-vars" "hcl" ];
+      yaml = [ "yaml" "yaml.docker-compse" "yaml.ansible" ];
+      typescript = [ "typescript" "typescriptreact" "typescript.tsx" ];
+      javascript = [ "javascript" "javascriptreact" "javascript.jsx" ];
+      flow = [ "javascript" "javascriptreact" "javascript.jsx" ];
     };
 
     mkFlake = args:
@@ -33,39 +100,37 @@
           };
         });
 
-    mkDerivation = { system, nixpkgs, name ? "vix", config ? { }
+    mkDerivation = { system, nixpkgs, app-name ? "vix", config ? { }
       , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
       let
+        inherit (nilm) List;
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
-        tooling =
-          nilm.List.flatten (nilm.List.map (nilm.Basics."|>" pkgs) tools);
-        tooling_pkgs = nilm.List.map (nilm.Dict.get "pkg") tooling;
+        tooling = List.flatten (List.map (nilm.Basics."|>" pkgs) tools);
 
-        transformed-neovim-config = import ./transforms/neovim-config.nix {
-          inherit pkgs lua name nilm tooling;
+        importCall = path: import path { inherit pkgs lua nilm app-name; };
+
+        transformed-plugins = importCall ./transforms/plugins.nix {
+          inherit plugin-setups plugin-sources less;
+        };
+
+        transformed-tooling = importCall ./transforms/tooling.nix tooling;
+
+        transformed-neovim-config = importCall ./transforms/neovim-config.nix {
+          inherit tooling;
           which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
         } config;
 
-        transformed-plugins = import ./transforms/pluginsV2.nix {
-          inherit pkgs lua nilm;
-          app-name = name;
-        } { inherit plugin-setups plugin-sources less; };
-
-        transformed-tooling =
-          import ./transforms/tooling.nix { inherit pkgs lua name nilm; }
-          tooling;
-
         complete_config = pkgs.stdenv.mkDerivation {
-          name = "${name}-configuration";
+          name = "${app-name}-configuration";
           src = ./.;
-          buildInputs = tooling_pkgs;
+          buildInputs = nilm.List.map (nilm.Dict.get "pkg") tooling;
           installPhase = ''
-            mkdir -p $out/${name}/lua/;
-            mkdir -p $out/${name}/plugin/;
-            mkdir -p $out/${name}/after/plugin/;
-            mkdir -p $out/${name}/pack/${name}-plugins/start/;
-            mkdir -p $out/${name}/pack/${name}-plugins/opt/;
+            mkdir -p $out/${app-name}/lua/;
+            mkdir -p $out/${app-name}/plugin/;
+            mkdir -p $out/${app-name}/after/plugin/;
+            mkdir -p $out/${app-name}/pack/${app-name}-plugins/start/;
+            mkdir -p $out/${app-name}/pack/${app-name}-plugins/opt/;
             echo "Beginning to generate the configurtion."
             echo "1/4 Created neccessary directories..." 
             ${transformed-neovim-config}
@@ -78,19 +143,19 @@
           '';
         };
 
-      in pkgs.writeScriptBin name ''
+      in pkgs.writeScriptBin app-name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";
-         export NVIM_APPNAME="${name}";
+         export NVIM_APPNAME="${app-name}";
          if [ "$1" = "remove-files" ]; then
-           rm -rf ~/.local/share/${name}/;
-           rm -rf ~/.local/state/${name}/;
-           rm -rf ~/.cache/${name}/;
+           rm -rf ~/.local/share/${app-name}/;
+           rm -rf ~/.local/state/${app-name}/;
+           rm -rf ~/.cache/${app-name}/;
            echo 'removed all associated files'
            exit 0;
          fi
-         exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${name}/init.lua "$@";
+         exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${app-name}/init.lua "$@";
       '';
 
   };

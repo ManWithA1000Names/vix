@@ -1,5 +1,7 @@
 # Vix, declarative, reproducible, shareable neovim configuration.
 
+# ⚠️ Vix is still a Work In Progress!!
+
 If you are curious what nix actually is, you can find great learning meterials here:
 
 - [nix.dev](https://nix.dev), new all in one documentation and learning center.
@@ -31,6 +33,7 @@ Features of [vix](https://github.com/manwtiha1000names/vix):
 Lets break the features down one by one:
 
 First some terminology:
+
 - An 'input' is either: a plugin, a formatter, a linter, a language server, a debugger and or neovim it self.
 - With the term 'associated programs' I mean 'inputs' - (plugins, neovim) + other programs executed by neovim.
 - 'your flake' means: the nix flake that contains your configuration of neovim.
@@ -60,7 +63,7 @@ the resulting files are 100%, byte for byte, reproducible on any system that sup
 
 When you actually install your vix powered configuration, your not only installing the generated files but also all the 'inputs'.
 
-Thus when you are on a new system you can simple run the command `nix profile install <your flake reference>` and you have your configuration ready to go! Including neovim and all the 'associated programs'. 
+Thus when you are on a new system you can simple run the command `nix profile install <your flake reference>` and you have your configuration ready to go! Including neovim and all the 'associated programs'.
 
 One command, no dependecy and or version management, you're good to go.
 
@@ -117,6 +120,4 @@ Vix allows you at various places to escape the nix language and configure some p
 
 Since everything in your configuration is technically an 'input' to 'your flake', nix has a bulitin method to update these 'inputs'. Either all of them at once or a specific 'input'.
 
-See the [updating section in the docs](docs???) 
-
-# ⚠️ Vix is still a Work In Progress!!
+See the [updating section in the docs](docs???)
