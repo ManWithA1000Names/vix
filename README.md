@@ -22,8 +22,8 @@ Features of [vix](https://github.com/manwtiha1000names/vix):
 - 🏭️ Reproducible.
 - ❄️ Shareable. Share you configuration through nix flakes.
 - 🛸 Isolated. Vix does not mess with your existing systems neovim configuration.
-- 🤖 Auto-configuration for plugins.
-- 🔧 Configure linters, formatters, language servers, plugins and more.
+- 🤖 Auto-configuration for plugins with a lazy loading system.
+- 🔧 Configure linters, formatters, language servers and more.
 - 📋️ Specify the actual linter, formatter and language server programs to be used.
 - 🇬🇷 Configure language specific keybindings.
 - 🗃️ No more dotfile management! Just install with one command `nix profile install <your flake reference>`.
@@ -34,8 +34,8 @@ Lets break the features down one by one:
 
 First some terminology:
 
-- An 'input' is either: a plugin, a formatter, a linter, a language server, a debugger and or neovim it self.
-- With the term 'associated programs' I mean 'inputs' - (plugins, neovim) + other programs executed by neovim.
+- An 'input' is either: a plugin, a formatter, a linter, a language server or neovim it self.
+- With the term 'associated programs' I mean 'inputs' - neovim + other programs executed by neovim.
 - 'your flake' means: the nix flake that contains your configuration of neovim.
 - '\<your flake reference\>': a valid flake reference to 'your flake'. See [flake reference attributes](https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#flake-reference-attributes)
 
@@ -44,16 +44,16 @@ First some terminology:
 If you wan't to make it unstable you can... But! By default vix and nix will try to make your configuration as stable as it gets.
 The source of this stability lies within nix's reproducibility, and the fact that all the 'inputs' of your configuration are pinned to a specific
 version. All the dependencies of the 'inputs' are also pinned, recursively. Thus if your configuration works, it will continue to work no matter
-how many times you install / uninstall it. As long as you don't change your `flake.lock` file your configuration will continue to work as expected
+how many times you install / uninstall it. As long as you don't change your `flake.nix` & `flake.lock` file your configuration will continue to work as expected
 untill the end of either nix, github, the internet or the world it self! (Given that the future versions of nix don't introduce any breaking changes)
 
 If you update the 'inputs', with `nix flake update`, then you must assure yourself that the updated inputs are stable and that the update (to ex. neovim) did not introduce any breaking changes.
 
-As long as you don't touch the `flake.lock` file you can change your configuration freely, keeping the stability guarantee.
+As long as you don't touch the `flake.lock` file you can change your configuration freely, keeping the stability guarantee from sources other than your code.
 
 Also, once the configuration is built it becomes immutable! So the only way to update your configuration is to bulid a new version.
 
-Meaning when a configuration is built its output should never be changed again!
+Meaning when a configuration is built, its output should never be changed again!
 
 ## 🏭️ Reproducible
 
@@ -71,8 +71,8 @@ One command, no dependecy and or version management, you're good to go.
 
 With the introduction of [nix flakes](https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html) as long as you upload 'your flake' somewhere public, anyone can instantly download and get the exact same setup and configuration (and even the exact same neovim version) on their system.
 
-All a user, that wants the same configuration as you, needs to do is what you yourself do, `nix profile install <your flake reference>`. And done! Now the EXACT SAME setup is on their system.
-And as will you see later, since the installation is isolated, there are no clashes with system's pre-existing installion of neovim.
+All a user, that wants the same configuration as you needs to do, is what you yourself do, `nix profile install <your flake reference>`. And done! Now the EXACT SAME setup is on their system.
+And as will you see later, since the installation is isolated, there are no clashes with the system's pre-existing installion of neovim.
 
 ## 🛸 Isolated
 
@@ -89,21 +89,28 @@ Many plugins follow the same setup procedures:
 
 Since this convention is so popular, vix offers a way to do it automatically. You can also only specify the table of arguments. See [the docs](docs???) for more information.
 
+Vix of course provides a way to manually setup plugins, and lazyly load plugins based on events.
+
 ## 🔧 Configure linters, formatters, language servers and more / 📋️ Specify the actual programs
 
-Vix has a bulitin mechanism to setup a 'language configuration'. This is basically an attribute set describing how to setup the tooling around each language you wish to extensively support.
+Vix integrates directly with 'lspconfig' and 'null-ls', to setup and use 'language server' and other tools null-ls supports.
 
-In these attribute sets you can utelize the [nixpkgs](https://github.com/nixos/nixpks) to specify the exact program you whish to be run.
+You can define an attribute sets describing the tools and how it should be setup.
 
-Vix also provides many preconfigured 'language configurations' so you can get up and running fast!
+In this attribute set you can utilize the [nixpkgs](https://github.com/nixos/nixpks) to specify the exact program you wish to be run.
+Vix will automatically setup lspconfig and null-ls to use the program specified through [nixpkgs](https://github.com/nixos/nixpks).
 
-All the programs you specify in these configuration will be built and included in your configuration (through the magic of nix of course).
+Vix also provides many preconfigured tool sets for common languages, specifying linters,formaters langauge servers etc. So you can get up and running fast!
+
+All the programs you specify in these configuration will be built and included in your configuration (through the magic of nix).
 
 See [the docs](docs???) for more information on language configuration.
 
 ## 🇬🇷 Configure language specific keybindings.
 
-In these langauge configurations you can also include keybindings that will be available only when you are editing a buffer that matches the given language.
+Vix automagically allows you to specify keybinds for a specific set of filetypes.
+Combine this with the fact that vix provides you sets of common filetypes per language.
+And setting up keybindings for a specific language is childs play.
 
 ## 🗃️ No more dotfile management
 
