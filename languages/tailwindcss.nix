@@ -1,10 +1,12 @@
 pkgs:
 let
-  ls = pkgs.stdenv.mkDerivation rec {
+  ls = pkgs.stdenv.mkDerivation {
     name = "tailwindcss";
     src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@tailwindcss/language-server/-/language-server-0.0.13.tgz";
-      hash = "sha512-C5OKPG8F6IiSbiEgXMxskMsOnbzSGnZvKBxEGHUhBGIB/tlX5rc7Iv/prdwYrUj2Swhjj5TrXuxZgACo+blB4A==";
+      url =
+        "https://registry.npmjs.org/@tailwindcss/language-server/-/language-server-0.0.13.tgz";
+      hash =
+        "sha512-C5OKPG8F6IiSbiEgXMxskMsOnbzSGnZvKBxEGHUhBGIB/tlX5rc7Iv/prdwYrUj2Swhjj5TrXuxZgACo+blB4A==";
     };
     installPhase = ''
       mkdir -p $out
@@ -13,30 +15,31 @@ let
     '';
     meta.mainProgram = "tailwindcss-language-server";
   };
-in
-[{
+in [{
   type = "language-server";
   pkg = ls;
   options = {
-    filetypes = _: ''(function()
-      local ft = vim.deepcopy(lspconfig.tailwindcss.document_config.default_config.filetypes)
-      table.insert(ft, "elm")
-      return ft
-    end)()'';
+    filetypes = _: ''
+      (function()
+            local ft = vim.deepcopy(lspconfig.tailwindcss.document_config.default_config.filetypes)
+            table.insert(ft, "elm")
+            return ft
+          end)()'';
     settings = {
       tailwindCSS = {
-        experimental = {
-          classRegex = [
-            "\\bclass[\\s(<|]+\"([^\"]*)\""
-            "\\bclass[\\s(]+\"[^\"]*\"[\\s+]+\"([^\"]*)\""
-            "\\bclass[\\s<|]+\"[^\"]*\"\\s*\\+{2}\\s*\" ([^\"]*)\""
-            "\\bclass[\\s<|]+\"[^\"]*\"\\s*\\+{2}\\s*\" [^\"]*\"\\s*\\+{2}\\s*\" ([^\"]*)\""
-            "\\bclass[\\s<|]+\"[^\"]*\"\\s*\\+{2}\\s*\" [^\"]*\"\\s*\\+{2}\\s*\" [^\"]*\"\\s*\\+{2}\\s*\" ([^\"]*)\""
-            "\\bclassList[\\s\\[\\(]+\"([^\"]*)\""
-            "\\bclassList[\\s\\[\\(]+\"[^\"]*\",\\s[^\\)]+\\)[\\s\\[\\(,]+\"([^\"]*)\""
-            "\\bclassList[\\s\\[\\(]+\"[^\"]*\",\\s[^\\)]+\\)[\\s\\[\\(,]+\"[^\"]*\",\\s[^\\)]+\\)[\\s\\[\\(,]+\"([^\"]*)\""
-          ];
-        };
+        includeLanguages.elm = "html";
+        experimental.classRegex = [
+          ''\bclass[\s(<|]+"([^"]*)"''
+          ''\bclass[\s(]+"[^"]*"[\s+]+"([^"]*)"''
+          ''\bclass[\s<|]+"[^"]*"\s*\+{2}\s*" ([^"]*)"''
+          ''\bclass[\s<|]+"[^"]*"\s*\+{2}\s*" [^"]*"\s*\+{2}\s*" ([^"]*)"''
+          ''
+            \bclass[\s<|]+"[^"]*"\s*\+{2}\s*" [^"]*"\s*\+{2}\s*" [^"]*"\s*\+{2}\s*" ([^"]*)"''
+          ''\bclassList[\s\[\(]+"([^"]*)"''
+          ''\bclassList[\s\[\(]+"[^"]*",\s[^\)]+\)[\s\[\(,]+"([^"]*)"''
+          ''
+            \bclassList[\s\[\(]+"[^"]*",\s[^\)]+\)[\s\[\(,]+"[^"]*",\s[^\)]+\)[\s\[\(,]+"([^"]*)"''
+        ];
       };
     };
   };
