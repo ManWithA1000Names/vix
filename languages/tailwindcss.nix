@@ -19,12 +19,57 @@ in [{
   type = "language-server";
   pkg = ls;
   options = {
-    filetypes = _: ''
-      (function()
-            local ft = vim.deepcopy(lspconfig.tailwindcss.document_config.default_config.filetypes)
-            table.insert(ft, "elm")
-            return ft
-          end)()'';
+    filetypes = [
+      "aspnetcorerazor"
+      "astro"
+      "astro-markdown"
+      "blade"
+      "clojure"
+      "django-html"
+      "htmldjango"
+      "edge"
+      "eelixir"
+      "elixir"
+      "ejs"
+      "erb"
+      "eruby"
+      "elm"
+      "gohtml"
+      "haml"
+      "handlebars"
+      "hbs"
+      "html"
+      "html-eex"
+      "heex"
+      "jade"
+      "leaf"
+      "liquid"
+      "markdown"
+      "mdx"
+      "mustache"
+      "njk"
+      "nunjucks"
+      "php"
+      "razor"
+      "slim"
+      "twig"
+      "css"
+      "less"
+      "postcss"
+      "sass"
+      "scss"
+      "stylus"
+      "sugarss"
+      "javascript"
+      "javascriptreact"
+      "reason"
+      "rescript"
+      "typescript"
+      "typescript"
+      "typescriptreact"
+      "vue"
+      "svelte"
+    ];
     settings = {
       tailwindCSS = {
         includeLanguages.elm = "html";
