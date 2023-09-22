@@ -174,6 +174,7 @@ let
     end)();
     vim.env.XDG_CONFIG_HOME = vim.env.OG_XDG_CONFIG_HOME;
     vim.env.OG_XDG_CONFIG_HOME = nil;
+    vim.env.NVIM_APPNAME = nil;
 
     -- INJECTED INIT
     ${if nilm.String.isEmpty init then
