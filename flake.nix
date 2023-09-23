@@ -21,6 +21,7 @@
       python = import ./languages/python.nix;
       haskell = import ./languages/haskell.nix;
       tailwindcss = import ./languages/tailwindcss.nix;
+      zig = import ./languages/zig.nix;
     };
 
     filetypes-for = {
