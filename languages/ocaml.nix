@@ -1,5 +1,5 @@
 pkgs: {
-  type = "langauge-server";
+  type = "language-server";
   pkg = pkgs.writeScriptBin "ocamllsp" ''
     export PATH="${pkgs.ocamlformat}/bin:$PATH"
     exec ${pkgs.ocamlPackages.ocaml-lsp}/bin/ocamllsp "$@"
