@@ -16,6 +16,7 @@
       json = import ./languages/json.nix;
       yaml = import ./languages/yaml.nix;
       toml = import ./languages/toml.nix;
+      ocaml = import ./languages/ocaml.nix;
       "ts/js" = import ./languages/ts_js.nix;
       "c/cpp" = import ./languages/c_cpp.nix;
       python = import ./languages/python.nix;
