@@ -28,7 +28,7 @@
    A.K.A this code will be placed in the init.lua.
 
    -- SET? : Attribute Set
-   An attribute set.where the key value pairs are compiled to 
+   An attribute set.where the key value pairs are compiled to
    "vim.opt.<key> = <value>" for each key value pair.
 
    -- GLOBALS? : Attribute Set
@@ -67,7 +67,7 @@
 
    -- FTKEYBINDS? : [{filetypes : [String], ...Keybinds}]
    An array of keybinds, that also include another attribute called "filetypes".
-   Which means that those Keybinds will only be bound if the buffer matches one of the 
+   Which means that those Keybinds will only be bound if the buffer matches one of the
    filetypes provided.
 */
 { pkgs, app-name, lua, nilm, }:
@@ -166,9 +166,15 @@ let
     -- RESET ENVIROMENT
     vim.fn.stdpath = (function()
       local og_stdpath = vim.fn.stdpath;
-      local config_dir = vim.fn.resolve(vim.env.XDG_CONFIG_HOME .. "/" .. vim.env.NVIM_APPNAME);
+      local cache_dir = og_stdpath("cache")
+      local config_dir = og_stdpath("config")
+      local data_dir = og_stdpath("data")
+      local state_dir = og_stdpath("state")
       return function(category)
+        if category == "cache" then return cache_dir end
         if category == "config" then return config_dir end 
+        if category == "data" then return data_dir end
+        if category == "log" or category == "state" then return state_dir end
         return og_stdpath(category)
       end
     end)();
