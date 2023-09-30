@@ -171,6 +171,7 @@
          export XDG_CONFIG_HOME="${complete_config}";
          export NVIM_APPNAME="${app-name}";
          if [ "$1" = "remove-files" ]; then
+           echo "removing..."
            rm -rf ~/.local/share/${app-name}/;
            rm -rf ~/.local/state/${app-name}/;
            rm -rf ~/.cache/${app-name}/;
