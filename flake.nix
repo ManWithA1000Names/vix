@@ -95,15 +95,24 @@
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation (args // { inherit system; });
-        in {
+        in
+        {
           packages = {
             ${theDerivation.name} = theDerivation;
             default = theDerivation;
           };
         });
 
-    mkDerivation = { system, nixpkgs, app-name ? "vix", config ? { }
-      , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
+    mkDerivation =
+      { system
+      , nixpkgs
+      , app-name ? "vix"
+      , config ? { }
+      , plugin-setups ? { }
+      , plugin-sources ? { }
+      , less ? [ ]
+      , tools ? [ ]
+      }:
       let
         inherit (nilm) List;
         pkgs = import nixpkgs { inherit system; };
@@ -118,10 +127,12 @@
 
         transformed-tooling = importCall ./transforms/tooling.nix tooling;
 
-        transformed-neovim-config = importCall ./transforms/neovim-config.nix {
-          inherit tooling;
-          which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
-        } config;
+        transformed-neovim-config = importCall ./transforms/neovim-config.nix
+          {
+            inherit tooling;
+            which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
+          }
+          config;
 
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${app-name}-configuration";
@@ -145,7 +156,16 @@
           '';
         };
 
-      in pkgs.writeScriptBin app-name ''
+
+        neovim-wihtout-parsers = pkgs.neovim.passthru.unwrapped.overrideAttrs (final: prev: {
+          postInstall = ''
+            echo "yes"
+            rm -rf $out/lib/nvim/parser
+          '';
+        });
+
+      in
+      pkgs.writeScriptBin app-name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";
@@ -157,7 +177,7 @@
            echo 'removed all associated files'
            exit 0;
          fi
-         exec ${pkgs.neovim}/bin/nvim -u ${complete_config}/${app-name}/init.lua "$@";
+         exec ${neovim-wihtout-parsers}/bin/nvim -u ${complete_config}/${app-name}/init.lua "$@";
       '';
 
   };
