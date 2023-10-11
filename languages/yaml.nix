@@ -28,6 +28,7 @@ pkgs: [
   {
     type = "diagnostics";
     pkg = pkgs.yamllint;
+    exe = "yamllint";
   }
   {
     type = "formatting";
