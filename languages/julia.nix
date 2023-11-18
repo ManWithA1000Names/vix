@@ -35,9 +35,7 @@ let
     server.runlinter = true
     run(server)
   '';
-in [{
-  type = "language-server";
-  pkg = pkgs.writeScriptBin "jlls" ''
+  lsp = pkgs.writeScriptBin "jlls" ''
     if [ -z "$JULIA_DEPOT_PATH" ]; then
         depot=~/.julia
     else
@@ -45,6 +43,10 @@ in [{
     fi
     ${pkgs.julia}/bin/julia --startup-file=no --history-file=no --project=$depot/environments/vix-jlls/ ${start-file}
   '';
+in [{
+  type = "language-server";
+  pkg = lsp;
   name = "julials";
   exe = "jlls";
+  options = { cmd = [ "${lsp}/bin/jlls" ]; };
 }]
