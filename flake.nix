@@ -23,6 +23,7 @@
       haskell = import ./languages/haskell.nix;
       tailwindcss = import ./languages/tailwindcss.nix;
       zig = import ./languages/zig.nix;
+      julia = import ./languages/julia.nix;
     };
 
     filetypes-for = {
@@ -95,24 +96,15 @@
     mkFlake = args:
       flake-utils.lib.eachDefaultSystem (system:
         let theDerivation = self.mkDerivation (args // { inherit system; });
-        in
-        {
+        in {
           packages = {
             ${theDerivation.name} = theDerivation;
             default = theDerivation;
           };
         });
 
-    mkDerivation =
-      { system
-      , nixpkgs
-      , app-name ? "vix"
-      , config ? { }
-      , plugin-setups ? { }
-      , plugin-sources ? { }
-      , less ? [ ]
-      , tools ? [ ]
-      }:
+    mkDerivation = { system, nixpkgs, app-name ? "vix", config ? { }
+      , plugin-setups ? { }, plugin-sources ? { }, less ? [ ], tools ? [ ] }:
       let
         inherit (nilm) List;
         pkgs = import nixpkgs { inherit system; };
@@ -127,12 +119,10 @@
 
         transformed-tooling = importCall ./transforms/tooling.nix tooling;
 
-        transformed-neovim-config = importCall ./transforms/neovim-config.nix
-          {
-            inherit tooling;
-            which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
-          }
-          config;
+        transformed-neovim-config = importCall ./transforms/neovim-config.nix {
+          inherit tooling;
+          which-key-in-plugins = nilm.Dict.member "which-key" plugin-sources;
+        } config;
 
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${app-name}-configuration";
@@ -156,16 +146,15 @@
           '';
         };
 
+        neovim-wihtout-parsers = pkgs.neovim.passthru.unwrapped.overrideAttrs
+          (final: prev: {
+            postInstall = ''
+              echo "yes"
+              rm -rf $out/lib/nvim/parser
+            '';
+          });
 
-        neovim-wihtout-parsers = pkgs.neovim.passthru.unwrapped.overrideAttrs (final: prev: {
-          postInstall = ''
-            echo "yes"
-            rm -rf $out/lib/nvim/parser
-          '';
-        });
-
-      in
-      pkgs.writeScriptBin app-name ''
+      in pkgs.writeScriptBin app-name ''
         #!/bin/sh
          export OG_XDG_CONFIG_HOME=$XDG_CONFIG_HOME;
          export XDG_CONFIG_HOME="${complete_config}";
