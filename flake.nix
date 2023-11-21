@@ -24,6 +24,7 @@
       tailwindcss = import ./languages/tailwindcss.nix;
       zig = import ./languages/zig.nix;
       julia = import ./languages/julia.nix;
+      elixir = import ./languages/elixir.nix;
     };
 
     filetypes-for = {
