@@ -69,7 +69,7 @@ let
       cmd = _:
         "vim.tbl_extend([[keep]],{[[${
           getExe tool
-        }]]},server.document_config.default_config.cmd)";
+        }]]},server.document_config.default_config.cmd or {})";
     } // Dict.getOr "options" { } tool;
 
   getName = tool:
