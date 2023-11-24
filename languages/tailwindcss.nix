@@ -17,7 +17,10 @@ let
   };
 in [{
   type = "language-server";
-  pkg = ls;
+  pkg = pkgs.writeScriptBin "twls" ''
+    ${pkgs.node}/bin/node ${ls}/bin/tailwindcss-language-server
+  '';
+  exe = "twls";
   options = {
     filetypes = [
       "aspnetcorerazor"
