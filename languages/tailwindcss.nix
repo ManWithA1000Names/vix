@@ -20,6 +20,7 @@ in [{
   pkg = pkgs.writeScriptBin "twls" ''
     ${pkgs.nodejs}/bin/node ${ls}/bin/tailwindcss-language-server
   '';
+  name = "tailwindcss";
   exe = "twls";
   options = {
     filetypes = [
