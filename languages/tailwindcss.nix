@@ -18,7 +18,7 @@ let
 in [{
   type = "language-server";
   pkg = pkgs.writeScriptBin "twls" ''
-    ${pkgs.node}/bin/node ${ls}/bin/tailwindcss-language-server
+    ${pkgs.nodejs}/bin/node ${ls}/bin/tailwindcss-language-server
   '';
   exe = "twls";
   options = {
