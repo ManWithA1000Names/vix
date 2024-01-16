@@ -1,6 +1,6 @@
 pkgs: [{
   type = "language-server";
-  pkg = pkgs.jdtls-language-server;
+  pkg = pkgs.jdt-language-server;
   name = "jdtls";
-  exe = "jdtls-language-server";
+  exe = "jdt-language-server";
 }]
