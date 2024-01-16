@@ -25,6 +25,7 @@
       zig = import ./languages/zig.nix;
       julia = import ./languages/julia.nix;
       elixir = import ./languages/elixir.nix;
+      java = import ./languages/java.nix;
     };
 
     filetypes-for = {
