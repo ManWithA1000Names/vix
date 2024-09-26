@@ -1,4 +1,14 @@
-pkgs: [
+pkgs:
+let
+  phpcbf = pkgs.writeScriptBin "phpcbf" ''
+    # prefer project local install over global.
+    if [ -e vendor/bin/phpcbf ]; then
+      exec ./vendor/bin/phpcbf "$@"
+    else
+      exec ${pkgs.php83Packages.php-codesniffer}/bin/phpcbf "$@"
+    fi
+  '';
+in [
   {
     type = "language-server";
     pkg = pkgs.phpactor;
@@ -11,7 +21,7 @@ pkgs: [
   }
   {
     type = "formatting";
-    pkg = pkgs.php83Packages.php-codesniffer;
+    pkg = phpcbf;
     exe = "phpcbf";
   }
 ]
