@@ -26,6 +26,7 @@
       julia = import ./languages/julia.nix;
       elixir = import ./languages/elixir.nix;
       java = import ./languages/java.nix;
+      php = import ./languages/php.nix;
     };
 
     filetypes-for = {
