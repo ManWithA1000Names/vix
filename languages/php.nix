@@ -26,7 +26,7 @@ pkgs: [
   }
   {
     type = "diagnostics";
-    pkgs = pkgs.php;
+    pkg = pkgs.php;
     exe = "php";
   }
   {
