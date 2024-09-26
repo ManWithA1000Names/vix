@@ -9,4 +9,9 @@ pkgs: [
     pkg = pkgs.php;
     exe = "php";
   }
+  {
+    type = "formatting";
+    pkg = pkgs.php83Packages.php-codesniffer;
+    exe = "phpcbf";
+  }
 ]
