@@ -2,7 +2,7 @@ pkgs: [
   {
     type = "language-server";
     pkg = pkgs.nodePackages.typescript-language-server;
-    name = "tsserver";
+    name = "ts_ls";
     exe = "typescript-language-server";
     disable_ls_formatting = true;
     options = {
