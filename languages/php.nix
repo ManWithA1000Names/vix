@@ -1,27 +1,29 @@
-pkgs: [
+pkgs:
+let
+  phpcs = pkgs.writeScriptBin "phpcs" ''
+    if [ -e vendor/bin/phpcs ]; then
+      exec ./vendor/bin/phpcs "$@"
+    else
+      exec ${pkgs.php83Packages.php-codesniffer}/bin/phpcs "$@"
+    fi
+  '';
+
+  phpcbf = pkgs.writeScriptBin "phpcbf" ''
+    if [ -e vendor/bin/phpcbf ]; then
+      exec ./vendor/bin/phpcbf "$@"
+    else
+      exec ${pkgs.php83Packages.php-codesniffer}/bin/phpcbf "$@"
+    fi
+  '';
+in [
   {
     type = "language-server";
     pkg = pkgs.phpactor;
     disable_ls_formatting = true;
-    # options = {
-    #   settings = {
-    #     Lua = {
-    #       diagnostics = { globals = [ "vim" ]; };
-    #       workspace = {
-    #         library = {
-    #           ${''[vim.fn.expand("$VIMRUNTIME/lua")]''} = true;
-    #           ${''[vim.fn.stdpath("config") .. "/lua"]''} = true;
-    #           ${''[vim.fn.stdpath("config") .. "/plugin"]''} = true;
-    #           ${''[vim.fn.stdpath("config") .. "/after/plugin"]''} = true;
-    #         };
-    #       };
-    #     };
-    #   };
-    # };
   }
   {
     type = "diagnostics";
-    pkg = pkgs.php83Packages.php-codesniffer;
+    pkg = phpcs;
     exe = "phpcs";
   }
   {
@@ -31,7 +33,7 @@ pkgs: [
   }
   {
     type = "formatting";
-    pkg = pkgs.php83Packages.php-codesniffer;
+    pkg = phpcbf;
     exe = "phpcbf";
   }
 ]
