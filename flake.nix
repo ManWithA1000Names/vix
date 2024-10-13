@@ -27,6 +27,7 @@
       elixir = import ./languages/elixir.nix;
       java = import ./languages/java.nix;
       php = import ./languages/php.nix;
+      gleam = import ./languages/gleam.nix;
     };
 
     filetypes-for = {
@@ -94,6 +95,7 @@
       typescript = [ "typescript" "typescriptreact" "typescript.tsx" ];
       javascript = [ "javascript" "javascriptreact" "javascript.jsx" ];
       flow = [ "javascript" "javascriptreact" "javascript.jsx" ];
+      gleam = [ "gleam" ];
     };
 
     mkFlake = args:
