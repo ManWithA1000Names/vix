@@ -15,6 +15,12 @@ in [
     disable_ls_formatting = true;
   }
   {
+    type = "language-server";
+    pkg = pkgs.php83Packages.phan;
+    disable_ls_formatting = true;
+    exe = "phan";
+  }
+  {
     type = "diagnostics";
     pkg = pkgs.php;
     exe = "php";
