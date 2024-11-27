@@ -28,6 +28,7 @@
       java = import ./languages/java.nix;
       php = import ./languages/php.nix;
       gleam = import ./languages/gleam.nix;
+      rust = import ./languages/rust.nix;
     };
 
     filetypes-for = {
