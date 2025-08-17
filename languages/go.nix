@@ -1,10 +1,10 @@
 pkgs: [
   {
     type = "language-server";
-    pkg = pkgs.gopls;
-    lua = ''
-      vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.lib.getBin pkgs.gofumpt}/bin/gofumpt"
-    '';
+    # pkg = pkgs.gopls;
+    # lua = ''
+    #   vim.env.GOFLAGS = "-tags=gofumpt=${pkgs.lib.getBin pkgs.gofumpt}/bin/gofumpt"
+    # '';
     exe = "gopls";
     options = {
       on_attach = _: ''function() pcall(vim.lsp.codelens.refresh) end'';
@@ -24,7 +24,7 @@ pkgs: [
   }
   {
     type = "diagnostics";
-    pkg = pkgs.golangci-lint;
+    # pkg = pkgs.golangci-lint;
     name = "golangci_lint";
     exe = "golangci-lint";
   }

@@ -21,7 +21,6 @@
       "c/cpp" = import ./languages/c_cpp.nix;
       python = import ./languages/python.nix;
       haskell = import ./languages/haskell.nix;
-      tailwindcss = import ./languages/tailwindcss.nix;
       zig = import ./languages/zig.nix;
       julia = import ./languages/julia.nix;
       elixir = import ./languages/elixir.nix;

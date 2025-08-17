@@ -41,7 +41,7 @@ let
     else
         depot="$JULIA_DEPOT_PATH"
     fi
-    ${pkgs.julia}/bin/julia --startup-file=no --history-file=no --project=$depot/environments/vix-jlls/ ${start-file}
+    julia --startup-file=no --history-file=no --project=$depot/environments/vix-jlls/ ${start-file}
   '';
 in [{
   type = "language-server";

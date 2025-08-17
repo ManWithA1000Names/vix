@@ -14,7 +14,7 @@ pkgs: [
   }
   {
     type = "language-server";
-    pkg = pkgs.deno;
+    # pkg = pkgs.deno;
     name = "denols";
     exe = "deno";
     disable_ls_formatting = true;
@@ -27,7 +27,7 @@ pkgs: [
   {
     type = "language-server";
     name = "eslint";
-    pkg = pkgs.nodePackages.vscode-langservers-extracted;
+    # pkg = pkgs.nodePackages.vscode-langservers-extracted;
     exe = "vscode-eslint-language-server";
     disable_ls_formatting = true;
   }

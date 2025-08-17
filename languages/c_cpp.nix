@@ -1,7 +1,7 @@
 pkgs: [
   {
     type = "language-server";
-    pkg = pkgs.clang-tools_16;
+    # pkg = pkgs.clang-tools_16;
     exe = "clangd";
     options = {
       capabilities = _: ''(function()
@@ -14,7 +14,7 @@ pkgs: [
 
   {
     type = "diagnostics";
-    pkg = pkgs.cppcheck;
+    # pkg = pkgs.cppcheck;
     exe = "cppcheck";
   }
 ]
