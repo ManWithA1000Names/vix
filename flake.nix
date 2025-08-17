@@ -155,7 +155,6 @@
         neovim-wihtout-parsers = pkgs.neovim.passthru.unwrapped.overrideAttrs
           (final: prev: {
             postInstall = ''
-              echo "yes"
               rm -rf $out/lib/nvim/parser
             '';
           });

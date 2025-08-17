@@ -84,10 +84,18 @@ let
       "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
 
   getExe = tool:
-    if Dict.member "exe" tool then
-      "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
+    if Dict.member "pkg" tool then
+      if Dict.member "exe" tool then
+        "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
+      else
+        pkgs.lib.getExe tool.pkg
+    else if Dict.member "exe" tool then
+      tool.exe
     else
-      pkgs.lib.getExe tool.pkg;
+      builtins.abort ''
+        While processing tool: "${
+          getName tool
+        }". You MUST provide the at least one of the "pkg" and "exe" attributes.'';
 
   tools = Dict.values (List.foldl (tool: acc:
     let name = getName tool;
@@ -109,11 +117,11 @@ let
         While processing tool: ${
           getName tool
         }. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover". Found: "${tool.type}"''
-    else if !(Dict.member "pkg" tool) || !(pkgs.lib.isDerivation tool.pkg) then
+    else if !(Dict.member "pkg" tool) && !(Dict.member "exe" tool) then
       builtins.abort ''
         While processing tool: "${
           getName tool
-        }". You MUST provide the "pkg" attribute with the derivation of the tool you wan't to configure.''
+        }". You MUST provide the at least one of the "pkg" and "exe" attributes.''
     else
       true;
 
