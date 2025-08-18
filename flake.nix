@@ -132,7 +132,8 @@
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${app-name}-configuration";
           src = ./.;
-          buildInputs = nilm.List.map (nilm.Dict.get "pkg") tooling;
+          buildInputs = nilm.List.map (nilm.Dict.get "pkg")
+            (nilm.List.filter (nilm.Dict.member "pkg") tooling);
           installPhase = ''
             mkdir -p $out/${app-name}/lua/;
             mkdir -p $out/${app-name}/plugin/;

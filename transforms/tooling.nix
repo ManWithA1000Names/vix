@@ -135,7 +135,7 @@ let
     let name = getName tool;
     in if Dict.member "manual_setup" tool then ''
       local lspconfig_ok, lspconfig = pcall(require,"lspconfig")
-      if not ok then return end
+      if not lspconfig_ok then return end
       -- Setting up language-server: '${name}' 
       ${if Dict.member "lua" tool then lua.toValidLuaInsert tool.lua else ""}
       ${lua.toValidLuaInsert tool.manual_setup}
