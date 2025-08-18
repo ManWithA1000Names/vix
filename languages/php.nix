@@ -14,6 +14,7 @@ pkgs:
     type = "language-server";
     # pkg = pkgs.phpactor;
     disable_ls_formatting = true;
+    exe = "phpactor";
   }
   {
     type = "diagnostics";
