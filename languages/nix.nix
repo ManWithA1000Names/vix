@@ -26,6 +26,6 @@ pkgs: [
 
   {
     type = "formatting";
-    pkg = pkgs.nixfmt;
+    pkg = pkgs.nixfmt-classic;
   }
 ]
