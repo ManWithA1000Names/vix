@@ -131,7 +131,7 @@ let
 
   null-ls-tools = List.filter (tool: tool.type != "language-server") tools;
 
-  configure-language-server = { type, pkg, options ? { }, ... }@tool:
+  configure-language-server = { type, options ? { }, ... }@tool:
     let name = getName tool;
     in if Dict.member "manual_setup" tool then ''
       local lspconfig_ok, lspconfig = pcall(require,"lspconfig")
@@ -156,7 +156,7 @@ let
       --}}
     '';
 
-  configure-null-ls = { type, pkg, ... }@tool:
+  configure-null-ls = { type, ... }@tool:
     let name = getName tool;
     in if Dict.member "manual_setup" tool then ''
       local null_ls_ok, null_ls = pcall(require, "null-ls")
