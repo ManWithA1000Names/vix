@@ -75,10 +75,10 @@ let
   getName = tool:
     if Dict.member "name" tool then
       tool.name
-    else if Dict.member "pkg" tool then
-      pkgs.lib.getName tool.pkg
     else if Dict.member "exe" tool then
       tool.exe
+    else if Dict.member "pkg" tool then
+      pkgs.lib.getName tool.pkg
     else
       builtins.abort
       "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
