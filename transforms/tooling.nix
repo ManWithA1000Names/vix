@@ -98,7 +98,7 @@ let
         }". You MUST provide the at least one of the "pkg" and "exe" attributes.'';
 
   tools = Dict.values (List.foldl (tool: acc:
-    let
+    builtins.trace acc (let
       name = getName tool;
       new_tool = if Dict.member name acc then
         nilm.Nix.deepMerge acc.${name} tool
@@ -112,7 +112,7 @@ let
           if command -v "${tool.exe}"; then exec ${tool.exe} "$@"; fi
           exit 1
         '';
-      })) { } applied_tools);
+      }))) { } applied_tools);
 
   valid_tool = tool:
     if !(Dict.member "type" tool) then
