@@ -123,7 +123,7 @@
               '';
             } // t
           else
-            t) List.flatten (List.map (nilm.Basics."|>" pkgs) tools);
+            t) (List.flatten (List.map (nilm.Basics."|>" pkgs) tools));
 
         importCall = path: import path { inherit pkgs lua nilm app-name; };
 
