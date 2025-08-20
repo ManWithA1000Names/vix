@@ -90,12 +90,7 @@ let
       else
         pkgs.lib.getExe tool.pkg
     else if Dict.member "exe" tool then
-      "${
-        pkgs.writeScriptBin tool.exe ''
-          if command -v "${tool.exe}"; then exec ${tool.exe} "$@"; fi
-          exit 1
-        ''
-      }/bin/${tool.exe}"
+      tool.exe
     else
       builtins.abort ''
         While processing tool: "${
@@ -103,11 +98,21 @@ let
         }". You MUST provide the at least one of the "pkg" and "exe" attributes.'';
 
   tools = Dict.values (List.foldl (tool: acc:
-    let name = getName tool;
-    in if Dict.member name acc then
-      Dict.insert name (nilm.Nix.deepMerge acc.${name} tool) acc
+    let
+      name = getName tool;
+      new_tool = if Dict.member name acc then
+        nilm.Nix.deepMerge acc.${name} tool
+      else
+        tool;
+    in if Dict.member "pkg" new_tool then
+      Dict.insert name new_tool
     else
-      Dict.insert name tool acc) { } applied_tools);
+      Dict.insert name (new_tool // {
+        pkg = pkgs.writeScriptBin tool.exe ''
+          if command -v "${tool.exe}"; then exec ${tool.exe} "$@"; fi
+          exit 1
+        '';
+      })) { } applied_tools);
 
   valid_tool = tool:
     if !(Dict.member "type" tool) then
