@@ -114,7 +114,16 @@
         inherit (nilm) List;
         pkgs = import nixpkgs { inherit system; };
         lua = import ./lib/lua.nix { inherit nilm pkgs; };
-        tooling = List.flatten (List.map (nilm.Basics."|>" pkgs) tools);
+        tooling = List.map (t:
+          if nilm.Dict.member "exe" t then
+            {
+              pkg = pkgs.writeScriptBin t.exe ''
+                if command -v "${t.exe}"; then exec "${t.exe}" "$@"; fi
+                exit 1
+              '';
+            } // t
+          else
+            t) List.flatten (List.map (nilm.Basics."|>" pkgs) tools);
 
         importCall = path: import path { inherit pkgs lua nilm app-name; };
 
@@ -132,8 +141,7 @@
         complete_config = pkgs.stdenv.mkDerivation {
           name = "${app-name}-configuration";
           src = ./.;
-          buildInputs = nilm.List.map (nilm.Dict.get "pkg")
-            (nilm.List.filter (nilm.Dict.member "pkg") tooling);
+          buildInputs = nilm.List.map (nilm.Dict.get "pkg") tooling;
           installPhase = ''
             mkdir -p $out/${app-name}/lua/;
             mkdir -p $out/${app-name}/plugin/;

@@ -84,18 +84,10 @@ let
       "Failed to find name while processing tool. Ensure all your tools have atleast one of the: pkg, name, exe fields present.";
 
   getExe = tool:
-    if Dict.member "pkg" tool then
-      if Dict.member "exe" tool then
-        "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
-      else
-        pkgs.lib.getExe tool.pkg
-    else if Dict.member "exe" tool then
-      tool.exe
+    if Dict.member "exe" tool then
+      "${pkgs.lib.getBin tool.pkg}/bin/${tool.exe}"
     else
-      builtins.abort ''
-        While processing tool: "${
-          getName tool
-        }". You MUST provide the at least one of the "pkg" and "exe" attributes.'';
+      pkgs.lib.getExe tool.pkg;
 
   tools = Dict.values (List.foldl (tool: acc:
     let
@@ -104,15 +96,7 @@ let
         nilm.Nix.deepMerge acc.${name} tool
       else
         tool;
-    in if Dict.member "pkg" new_tool then
-      Dict.insert name new_tool acc
-    else
-      Dict.insert name (new_tool // {
-        pkg = pkgs.writeScriptBin tool.exe ''
-          if command -v "${tool.exe}"; then exec ${tool.exe} "$@"; fi
-          exit 1
-        '';
-      }) acc) { } applied_tools);
+    in Dict.insert name new_tool acc) { } applied_tools);
 
   valid_tool = tool:
     if !(Dict.member "type" tool) then
@@ -127,11 +111,11 @@ let
         While processing tool: ${
           getName tool
         }. You MUST provide the "type" attribute with the value of one of: "language-server", "diagnostics", "formatting", "code_actions", "completion", "hover". Found: "${tool.type}"''
-    else if !(Dict.member "pkg" tool) && !(Dict.member "exe" tool) then
+    else if !(Dict.member "pkg" tool) then
       builtins.abort ''
         While processing tool: "${
           getName tool
-        }". You MUST provide the at least one of the "pkg" and "exe" attributes.''
+        }". You MUST provide the "pkg" or "exe" attribute.''
     else
       true;
 
